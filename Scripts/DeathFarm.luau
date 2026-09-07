@@ -45,6 +45,9 @@ local CONFIG = {
 	RejoinDelay = 3, -- pause between recovery attempts
 	PromptRetryTimeout = 25, -- seconds spent hammering one prompt
 	MaxConsecutiveErrors = 5, -- errors before an automatic hard reset
+	HeadingTimeout = 60, -- seconds waiting inside the lobby for a run to start
+	                         -- after CreateElevator; if the game never leaves
+	                         -- "Heading to <destination>", exit and rejoin
 	MuteGame = false, -- true = silence every sound (overnight comfort)
 	SendCaptions = true, -- in-game caption log lines
 	-- Tank mode: every step has a fallback technique. If a spawn name
@@ -61,6 +64,9 @@ local ConsecutiveErrors = 0
 local LastJoinAttempt = 0
 local LastCaption = 0
 local MutedSounds = {}
+-- Tracks the current join phase so the "Heading to <destination>" stall can
+-- be detected: { Mode = "heading"|"transit"|nil, Target = string|nil, Since = os.clock() }
+local JoinState = nil
 
 local LOBBY_PLACE = 6516141723
 local GAME_PLACE = 6839171747
@@ -448,6 +454,10 @@ local function JoinRun()
 	LastJoinAttempt = os.clock()
 	local Destinations = (CONFIG.Destinations and #CONFIG.Destinations > 0) and CONFIG.Destinations or { CONFIG.Destination }
 	for Index, Destination in ipairs(Destinations) do
+		-- mark this attempt as heading-to-<Destination>; if we never leave
+		-- the lobby (stuck on "Heading to Hotel") the timeout below forces
+		-- a clean lobby -> rejoin cycle instead of waiting forever.
+		JoinState = { Mode = "heading", Target = Destination, Since = os.clock() }
 		QueueSelf()
 		Caption("Joining a solo " .. tostring(Destination) .. " run (option " .. Index .. "/" .. #Destinations .. ")...")
 		FireRemote(GetRemotes(), "CreateElevator", {
@@ -457,16 +467,19 @@ local function JoinRun()
 			FriendsOnly = false,
 			MaxPlayers = CONFIG.MaxPlayers,
 		})
-		local Deadline = os.clock() + 45
+		local Deadline = os.clock() + CONFIG.HeadingTimeout
 		while os.clock() < Deadline do
 			if game.PlaceId ~= LOBBY_PLACE then
+				-- left the lobby; the game queues its own loading flow
+				JoinState = { Mode = "transit", Target = Destination, Since = os.clock() }
 				CONFIG.Destination = Destination -- remember what worked
 				return
 			end
 			task.wait(0.5)
 		end
-		Caption("Join did not complete with " .. tostring(Destination) .. ", trying the next option...")
+		Caption("Stuck on 'Heading to " .. tostring(Destination) .. "' - exiting and rejoining...")
 	end
+	JoinState = nil
 	QueueSelf()
 	Caption("All join options failed, re-entering the lobby...")
 	pcall(function()
@@ -507,9 +520,9 @@ local function PlayAgain()
 	LeaveToLobby()
 end
 
--- Tank-mode death: three techniques, tried in order. Criteria for success
--- is only "the remote did not throw": whether the player actually dies is
--- checked afterwards in WaitDeath, which escalates to the next technique.
+-- Tank-mode death: the PRIMARY technique (replicatesignal) is always tried
+-- first and is the one that works in the vast majority of cases; the other
+-- techniques only kick in if it doesn't register a death.
 local KillMethods = {
 	{ Name = "replicatesignal", Func = function()
 		if typeof(replicatesignal) ~= "function" then
@@ -704,9 +717,18 @@ end
 
 local function DispatchOnce()
 	if game.PlaceId == LOBBY_PLACE then
+		-- In the lobby: if the previous elevator join never let us leave
+		-- (stuck on "Heading to Hotel"), force a fresh exit+rejoin quickly
+		-- instead of politely waiting through another long join cooldown.
+		if JoinState and JoinState.Mode == "heading" and os.clock() - JoinState.Since > CONFIG.HeadingTimeout then
+			Caption("Stuck in the lobby after 'Heading to " .. tostring(JoinState.Target or "?") .. "', exiting and rejoining...")
+			JoinState = nil
+			LastJoinAttempt = 0
+		end
 		JoinRun()
 		return
 	end
+	JoinState = nil
 	if game.PlaceId ~= GAME_PLACE then
 		Caption("Unknown place, teleporting back to the DOORS lobby...")
 		QueueSelf()
