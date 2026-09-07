@@ -1,37 +1,283 @@
--- ZyroHub encrypted module (Components/SettingsTab.luau) - built 2026-09-07 20:27 UTC
--- Readable source lives in src/ (never published). Edit src/, then run Scripts/build.ps1.
-local PAYLOAD = "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"
-local KEY = "ZyroHub-Enc-v1-7Kq2mX9pR4tW8yB3nF6jH1cV5sL0dG2aZ9eQ4uI7oP3rT6wY"
-local SIZE = 9447
-local function Decrypt(Payload, Key, Size)
-	local Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-	local Reverse = {}
-	for Index = 1, 64 do
-		Reverse[Alphabet:sub(Index, Index)] = string.char(Index - 1)
+return function(Window)
+	local L = function(Key)
+		return ZyroHub.Localization.Get(Key, ZyroHub.Language)
 	end
-	local Mapped = ((Payload:gsub(".", Reverse)):gsub("=", "\0"))
-	local Bytes = {}
-	local Pos = 0
-	for Group = 1, #Mapped, 4 do
-		local A, B, C, D = Mapped:byte(Group, Group + 3)
-		local N = A * 262144 + B * 4096 + C * 64 + D
-		Pos = Pos + 1
-		Bytes[Pos] = math.floor(N / 65536) % 256
-		Pos = Pos + 1
-		Bytes[Pos] = math.floor(N / 256) % 256
-		Pos = Pos + 1
-		Bytes[Pos] = N % 256
+
+	local function CloneReference(Object)
+		if ZyroHub and ZyroHub.Environment.cloneref then
+			return ZyroHub.Environment.cloneref(Object)
+		else
+			return Object
+		end
 	end
-	local KeyLength = #Key
-	local Chars = {}
-	for Index = 1, Size do
-		Chars[Index] = string.char((Bytes[Index] - Key:byte(((Index - 1) % KeyLength) + 1) - (Index % 256)) % 256)
+	
+	local Services = setmetatable({}, {
+		__index = function(self, Name)
+			return CloneReference(game:GetService(Name))
+		end
+	})
+
+	local Library = ZyroHub.Interface.Library
+	local SaveManager = ZyroHub.Interface.SaveManager
+	local ThemeManager = ZyroHub.Interface.ThemeManager
+	
+	local Toggles = Library.Toggles
+	local Options = Library.Options
+	
+	local SettingsTab = Window:AddTab(L("Settings"), "settings")
+	local MenuGroup = SettingsTab:AddLeftGroupbox(L("Menu"))
+	local ConfigGroup = SettingsTab:AddRightGroupbox(L("ConfigSharing"))
+	local FavoritesGroup = SettingsTab:AddLeftGroupbox(L("Favorites"))
+	FavoritesGroup:AddLabel(L("FavoriteHint"), true)
+
+	local FavoriteTargets = {
+		{ "FavoriteSpeedBoost", "SpeedBoostToggle" },
+		{ "FavoriteFly", "FlyToggle" },
+		{ "FavoriteNoclip", "NoclipToggle" },
+		{ "FavoriteAutoInteract", "AutoInteractToggle" },
+		{ "FavoriteAutoCloset", "AutoClosetToggle" },
+		{ "FavoriteAutoUnlock", "AutoUnlockPadlockToggle" },
+		{ "FavoriteAnticheat", "DisableAnticheat" },
+	}
+
+	for _, Favorite in FavoriteTargets do
+		local FavoriteKey, TargetKey = Favorite[1], Favorite[2]
+		local Target = Toggles[TargetKey]
+		if Target then
+			FavoritesGroup:AddToggle(FavoriteKey, {
+				Text = L(FavoriteKey),
+				Default = Target.Value,
+				Callback = function(Value)
+					Target:SetValue(Value)
+				end,
+			})
+		end
 	end
-	return table.concat(Chars)
+  local PerformanceState = {}
+  local PerformanceConnection
+  local PerformanceConnection2
+  local PerformanceAtmosphere
+
+  local function SaveAtmosphere()
+    local Atmo = Services.Lighting:FindFirstChildOfClass("Atmosphere")
+    if Atmo then
+      PerformanceAtmosphere = { Density = Atmo.Density, Glare = Atmo.Glare, Haze = Atmo.Haze }
+    end
+  end
+
+  local function DisableObject(Object)
+    local Class = Object.ClassName
+    if Object:IsA("ParticleEmitter") or Object:IsA("Trail") or Object:IsA("Beam") or Object:IsA("PostEffect") or Class == "Fire" or Class == "Smoke" or Class == "Sparkles" or Object:IsA("ForceField") then
+      if Object.Enabled == true then
+        PerformanceState[Object] = true
+        Object.Enabled = false
+      end
+    end
+  end
+
+  local function SetPerformanceMode(Enabled)
+    local Lighting = Services.Lighting
+    if Enabled then
+      PerformanceState.GlobalShadows = Lighting.GlobalShadows
+      Lighting.GlobalShadows = false
+      SaveAtmosphere()
+      if PerformanceAtmosphere then
+        local Atmo = Lighting:FindFirstChildOfClass("Atmosphere")
+        if Atmo then
+          Atmo.Density = 0
+          Atmo.Glare = 0
+          Atmo.Haze = 0
+        end
+      end
+      for _, Root in { Services.Workspace, Lighting } do
+        for _, Object in Root:GetDescendants() do
+          DisableObject(Object)
+        end
+      end
+      if PerformanceConnection then
+        PerformanceConnection:Disconnect()
+      end
+      PerformanceConnection = Services.Workspace.DescendantAdded:Connect(DisableObject)
+      PerformanceConnection2 = Lighting.DescendantAdded:Connect(DisableObject)
+      pcall(function() ZyroHub.ESPLibrary:SetRenderLimit(90) end)
+    else
+      if PerformanceConnection then
+        PerformanceConnection:Disconnect()
+        PerformanceConnection = nil
+      end
+      if PerformanceConnection2 then
+        PerformanceConnection2:Disconnect()
+        PerformanceConnection2 = nil
+      end
+      if PerformanceState.GlobalShadows ~= nil then
+        Lighting.GlobalShadows = PerformanceState.GlobalShadows
+      end
+      if PerformanceAtmosphere then
+        local Atmo = Lighting:FindFirstChildOfClass("Atmosphere")
+        if Atmo then
+          Atmo.Density = PerformanceAtmosphere.Density
+          Atmo.Glare = PerformanceAtmosphere.Glare
+          Atmo.Haze = PerformanceAtmosphere.Haze
+        end
+        PerformanceAtmosphere = nil
+      end
+      for Object, WasEnabled in PerformanceState do
+        if typeof(Object) == "Instance" and Object.Parent then
+          Object.Enabled = WasEnabled
+        end
+      end
+      PerformanceState = {}
+      pcall(function() ZyroHub.ESPLibrary:SetRenderLimit(240) end)
+    end
+  end
+
+	MenuGroup:AddToggle("PerformanceMode", {
+		Text = L("PerformanceMode"),
+		Default = false,
+		Callback = function(Value)
+			SetPerformanceMode(Value)
+			Library:Notify(L(Value and "PerformanceEnabled" or "PerformanceDisabled"))
+		end,
+	})
+
+	ConfigGroup:AddInput("ConfigShareCode", {
+		Text = L("ConfigCode"),
+		Default = "",
+		Placeholder = L("ConfigCodePlaceholder"),
+		AllowEmpty = true,
+	})
+
+	ConfigGroup:AddButton(L("CopyConfigCode"), function()
+		local EncodedConfig, Success = SaveManager:SaveJSON("SharedConfig")
+		if not Success then
+			Library:Notify(L("ConfigInvalid"))
+			return
+		end
+		toclipboard("ZYROCFG1:" .. EncodedConfig)
+		Library:Notify(L("ConfigCopied"))
+	end)
+
+	ConfigGroup:AddButton(L("ApplyConfig"), function()
+		local Input = Options.ConfigShareCode
+		local Code = Input and Input.Value or ""
+		local Prefix = "ZYROCFG1:"
+		if Code:sub(1, #Prefix) == Prefix then
+			Code = Code:sub(#Prefix + 1)
+		end
+		local Success = SaveManager:LoadJSON(Code)
+		Library:Notify(Success and L("ConfigApplied") or L("ConfigInvalid"))
+	end)
+
+	MenuGroup:AddDropdown("Language", {
+		Text = L("Language"),
+		Values = { "English", "Türkçe" },
+		Default = (ZyroHub.Language == "Turkish" and 2 or 1),
+		Callback = function(Value)
+			local SelectedLanguage = (Value == "Türkçe" and "Turkish" or "English")
+			ZyroHub.Language = SelectedLanguage
+			if ZyroHub.Environment.writefile and ZyroHub.Environment.readfile then
+				local UserData = ZyroHub.Environment.readfile("ZyroHub/UserData.json")
+				local Decoded = Services.HttpService:JSONDecode(UserData)
+				Decoded.Language = SelectedLanguage
+				ZyroHub.Environment.writefile("ZyroHub/UserData.json", Services.HttpService:JSONEncode(Decoded))
+			end
+			Library:Notify(ZyroHub.Localization.Get("LanguageChanged", SelectedLanguage))
+		end
+	})
+	
+	MenuGroup:AddToggle("KeybindMenuOpen", {
+		Default = Library.KeybindFrame.Visible,
+		Text = L("OpenKeybindMenu"),
+		Callback = function(value)
+			Library.KeybindFrame.Visible = value
+		end,
+	})
+	MenuGroup:AddToggle("ShowCustomCursor", {
+		Text = L("CustomCursor"),
+		Default = false,
+		Callback = function(Value)
+			Library.ShowCustomCursor = Value
+		end,
+	})
+
+	MenuGroup:AddDropdown("TouchControls", {
+		Text = L("TouchControls"),
+		Values = { L("TouchAuto"), L("TouchEnabledOpt"), L("TouchDisabled") },
+		Default = (ZyroHub.Config.TouchControls == "Enabled" and 2 or (ZyroHub.Config.TouchControls == "Disabled" and 3 or 1)),
+		Callback = function(Value)
+			local Mode = (Value == L("TouchEnabledOpt") and "Enabled") or (Value == L("TouchDisabled") and "Disabled") or "Auto"
+			ZyroHub.Config.TouchControls = Mode
+			if ZyroHub.Environment.writefile and ZyroHub.Environment.readfile then
+				pcall(function()
+					local Decoded = Services.HttpService:JSONDecode(ZyroHub.Environment.readfile("ZyroHub/UserData.json"))
+					Decoded.TouchControls = Mode
+					ZyroHub.Environment.writefile("ZyroHub/UserData.json", Services.HttpService:JSONEncode(Decoded))
+				end)
+			end
+			if ZyroHub.Platform and ZyroHub.Platform.SetMode then
+				local Enabled = ZyroHub.Platform.SetMode(Mode)
+				Library:Notify(L(Enabled and "TouchPanelOn" or "TouchPanelOff"))
+			end
+		end,
+	})
+
+	MenuGroup:AddDropdown("DPIDropdown", {
+		Values = { "50%", "75%", "100%", "125%", "150%", "175%", "200%" },
+		Default = "100%",
+	
+		Text = L("DPIScale"),
+	
+		Callback = function(Value)
+			Value = Value:gsub("%%", "")
+			local DPI = tonumber(Value)
+	
+			Library:SetDPIScale(DPI)
+		end,
+	})
+	MenuGroup:AddDivider()
+	MenuGroup:AddLabel(L("MenuBind")):AddKeyPicker("MenuKeybind", { Default = "RightShift", NoUI = true, Text = L("MenuKeybind") })
+	
+	MenuGroup:AddButton(L("CopyLink"), function()
+		toclipboard("https://github.com/zyro1903/ZyroHubDoors")
+		Library:Notify(L("LinkCopied"))
+	end)
+	
+	MenuGroup:AddButton(L("Unload"), function()
+		Library:Unload()
+	end)
+	
+	Library.ToggleKeybind = Options.MenuKeybind
+	
+	ThemeManager:SetLibrary(Library)
+	SaveManager:SetLibrary(Library)
+	SaveManager:IgnoreThemeSettings()
+	SaveManager:SetIgnoreIndexes({"ConfigShareCode", "PerformanceMode", "TouchControls"})
+	ThemeManager:SetFolder("ZyroHub")
+	SaveManager:SetFolder("ZyroHub/" .. ZyroHub.SavePath)
+	SaveManager:BuildConfigSection(SettingsTab)
+	ThemeManager:ApplyToTab(SettingsTab)
+	ThemeManager:ApplyTheme("Zyro Aurora")
+	-- A saved config referencing a removed theme key must not break startup.
+	pcall(function()
+		SaveManager:LoadAutoloadConfig()
+	end)
+
+	local ZyroTheme = {
+		FontColor = "EAF7F5",
+		MainColor = "12212A",
+		AccentColor = "20D3C2",
+		BackgroundColor = "081218",
+		OutlineColor = "2B4852"
+	}
+
+	for Name, Hex in ZyroTheme do
+		local Color = Color3.fromHex(Hex)
+		Library.Scheme[Name] = Color
+		if Library.Options[Name] then
+			Library.Options[Name]:SetValue(Color)
+		end
+	end
+
+	Library:UpdateColorsUsingRegistry()
+	Library:SetFont(Enum.Font.Gotham)
 end
-local Source = Decrypt(PAYLOAD, KEY, SIZE)
-local Fn, Err = loadstring(Source, "Components/SettingsTab.luau")
-if not Fn then
-	error("[ZyroHub] encrypted module failed to compile: " .. tostring(Err))
-end
-return Fn()

@@ -1,37 +1,108 @@
--- ZyroHub encrypted module (Components/InfoTab.luau) - built 2026-09-07 20:27 UTC
--- Readable source lives in src/ (never published). Edit src/, then run Scripts/build.ps1.
-local PAYLOAD = "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"
-local KEY = "ZyroHub-Enc-v1-7Kq2mX9pR4tW8yB3nF6jH1cV5sL0dG2aZ9eQ4uI7oP3rT6wY"
-local SIZE = 4563
-local function Decrypt(Payload, Key, Size)
-	local Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-	local Reverse = {}
-	for Index = 1, 64 do
-		Reverse[Alphabet:sub(Index, Index)] = string.char(Index - 1)
-	end
-	local Mapped = ((Payload:gsub(".", Reverse)):gsub("=", "\0"))
-	local Bytes = {}
-	local Pos = 0
-	for Group = 1, #Mapped, 4 do
-		local A, B, C, D = Mapped:byte(Group, Group + 3)
-		local N = A * 262144 + B * 4096 + C * 64 + D
-		Pos = Pos + 1
-		Bytes[Pos] = math.floor(N / 65536) % 256
-		Pos = Pos + 1
-		Bytes[Pos] = math.floor(N / 256) % 256
-		Pos = Pos + 1
-		Bytes[Pos] = N % 256
-	end
-	local KeyLength = #Key
-	local Chars = {}
-	for Index = 1, Size do
-		Chars[Index] = string.char((Bytes[Index] - Key:byte(((Index - 1) % KeyLength) + 1) - (Index % 256)) % 256)
-	end
-	return table.concat(Chars)
+return function(Window)
+    local L = function(Key)
+        return ZyroHub.Localization.Get(Key, ZyroHub.Language)
+    end
+
+    local LatestChangelog = {
+        "2026-09-07",
+        "<font color='rgb(0, 255, 0)'>+ DeathFarm v2: never-exit supervisor, anti-idle, auto-recovery</font>",
+        "2026-09-06",
+        "<font color='rgb(0, 255, 0)'>+ The Archives support: entity ESP, notifications and bypasses</font>",
+        "<font color='rgb(0, 255, 0)'>+ Archives item ESP (Pizza, Paper Plane, Ticket and more)</font>",
+        "2026-08-31",
+        "<font color='rgb(0, 255, 0)'>+ Enterprise hardening: pinned dependencies + offline cache</font>",
+        "<font color='rgb(0, 255, 0)'>+ Touch control panel for mobile executors</font>",
+        "<font color='rgb(0, 255, 0)'>* Auto-Revive attempt cap, safer unload, throttled RemoveFigure</font>",
+        "11/7/2026",
+        "<font color='rgb(0, 255, 0)'>+ Added Entity ESP Selection</font>",
+		"<font color='rgb(0, 255, 0)'>+ Added Item Notifier</font>",
+		"<font color='rgb(0, 255, 0)'>+ Added Remove Surge</font>",
+		"<font color='rgb(0, 255, 0)'>+ Added Death Farm</font>",
+		"<font color='rgb(0, 255, 0)'>+ Fixed Some Broken Features (Bypass Eyes, etc)</font>",
+    }
+
+    local function CloneReference(Object)
+        if ZyroHub and ZyroHub.Environment.cloneref then
+            return ZyroHub.Environment.cloneref(Object)
+        else
+            return Object
+        end
+    end
+
+    local Services = setmetatable({}, {
+        __index = function(self, Name)
+            return CloneReference(game:GetService(Name))
+        end
+    })
+
+    local Library = ZyroHub.Interface.Library
+    local SaveManager = ZyroHub.Interface.SaveManager
+    local ThemeManager = ZyroHub.Interface.ThemeManager
+
+    local Toggles = Library.Toggles
+    local Options = Library.Options
+
+    local LocalPlayer = Services.Players.LocalPlayer
+    local InfoTab = Window:AddTab(L("Overview"), "layout-dashboard")
+
+    local User = InfoTab:AddLeftGroupbox(L("Identity"))
+
+    local ImageSize = Enum.ThumbnailSize.Size420x420
+    local ImageType = Enum.ThumbnailType.HeadShot
+
+    -- Thumbnail fetches can fail (rate limit, network); never crash setup.
+    local OkThumb, Content = pcall(function()
+        return Services.Players:GetUserThumbnailAsync(LocalPlayer.UserId, ImageType, ImageSize)
+    end)
+    if not OkThumb or type(Content) ~= "string" then
+        Content = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+    end
+
+    User:AddImage("UserIcon", {
+        Image = Content
+    })
+
+    User:AddLabel("ID: " .. LocalPlayer.Name, true)
+    User:AddLabel(L("TotalExecutions") .. ": " .. (ZyroHub.TotalExecutions and ZyroHub.TotalExecutions or "N/A"), true)
+
+    local Changelog = InfoTab:AddRightGroupbox(L("Pulse"))
+    for Index, Change in pairs(LatestChangelog) do
+        Changelog:AddLabel(Change, true)
+    end
+
+    local Name, Version = ZyroHub.Environment.identifyexecutor()
+    local Executor = InfoTab:AddRightGroupbox(L("Runtime"))
+    Executor:AddLabel(L("Name") .. ": " .. Name, true)
+	Executor:AddLabel(L("Version") .. ": " .. (Version and Version or "N/A"), true)
+    Executor:AddDivider()
+    Executor:AddLabel(L("TestResult") .. ": ", true)
+
+    for Index, Result in pairs(ZyroHub.Environment.Results) do
+		-- fix for veloshitty 💔
+		Result = Result:gsub("<", "(")
+		Result = Result:gsub(">", ")")
+		
+        Executor:AddLabel(Result, true)
+    end
+
+    local Net = ZyroHub.Net
+    local Dependencies = InfoTab:AddLeftGroupbox(L("Dependencies"))
+    Dependencies:AddLabel(L("Pinned") .. " (Obsidian): " .. (Net and Net.Pins.Obsidian:sub(1, 7) or "N/A"), true)
+    if Net and type(Net.GetStatus) == "function" then
+        for CacheKey, Status in pairs(Net:GetStatus()) do
+            Dependencies:AddLabel(CacheKey .. ": " .. L(Status == "cache" and "CachedCopy" or "NetworkLoad"), true)
+        end
+    end
+    Dependencies:AddDivider()
+
+    local Community = InfoTab:AddLeftGroupbox(L("Links"))
+    Community:AddButton(L("CopyLink"), function()
+        toclipboard("https://github.com/zyro1903/ZyroHubDoors")
+        Library:Notify(L("LinkCopied"))
+    end)
+
+    local CreditTab = Window:AddTab(L("Credit"), "user")
+    local Creator = CreditTab:AddLeftGroupbox(L("Creator"))
+    Creator:AddLabel(L("CreditZyro"), true)
+    Creator:AddLabel(L("HelperRag"), true)
 end
-local Source = Decrypt(PAYLOAD, KEY, SIZE)
-local Fn, Err = loadstring(Source, "Components/InfoTab.luau")
-if not Fn then
-	error("[ZyroHub] encrypted module failed to compile: " .. tostring(Err))
-end
-return Fn()

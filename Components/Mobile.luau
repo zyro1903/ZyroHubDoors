@@ -1,37 +1,303 @@
--- ZyroHub encrypted module (Components/Mobile.luau) - built 2026-09-07 20:27 UTC
--- Readable source lives in src/ (never published). Edit src/, then run Scripts/build.ps1.
-local PAYLOAD = "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"
-local KEY = "ZyroHub-Enc-v1-7Kq2mX9pR4tW8yB3nF6jH1cV5sL0dG2aZ9eQ4uI7oP3rT6wY"
-local SIZE = 8386
-local function Decrypt(Payload, Key, Size)
-	local Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-	local Reverse = {}
-	for Index = 1, 64 do
-		Reverse[Alphabet:sub(Index, Index)] = string.char(Index - 1)
+--[[
+    ZyroHub :: Mobile (Platform layer)
+    ----------------------------------
+    - Detects touch-first devices (phones/tablets running mobile executors).
+    - Provides a floating, draggable touch panel that exposes keybind-critical
+      toggles, because physical keyboards (R / Q / N shortcuts) do not exist
+      on touch devices.
+    - Modes: "Auto" (only on mobile), "Enabled", "Disabled" - user selectable
+      from Settings and persisted in UserData.json.
+]]
+
+local Platform = {
+	IsMobile = false,
+	Mode = "Auto",
+	Actions = {},
+	_Gui = nil,
+	_Library = nil,
+}
+
+local function GetService(Name)
+	local ok, Service = pcall(game.GetService, game, Name)
+	if not ok or not Service then
+		return nil
 	end
-	local Mapped = ((Payload:gsub(".", Reverse)):gsub("=", "\0"))
-	local Bytes = {}
-	local Pos = 0
-	for Group = 1, #Mapped, 4 do
-		local A, B, C, D = Mapped:byte(Group, Group + 3)
-		local N = A * 262144 + B * 4096 + C * 64 + D
-		Pos = Pos + 1
-		Bytes[Pos] = math.floor(N / 65536) % 256
-		Pos = Pos + 1
-		Bytes[Pos] = math.floor(N / 256) % 256
-		Pos = Pos + 1
-		Bytes[Pos] = N % 256
+	local Env = rawget(getgenv(), "ZyroHub")
+	if Env and Env.Environment and Env.Environment.cloneref then
+		local okCloned, Cloned = pcall(Env.Environment.cloneref, Service)
+		if okCloned and Cloned then
+			return Cloned
+		end
 	end
-	local KeyLength = #Key
-	local Chars = {}
-	for Index = 1, Size do
-		Chars[Index] = string.char((Bytes[Index] - Key:byte(((Index - 1) % KeyLength) + 1) - (Index % 256)) % 256)
-	end
-	return table.concat(Chars)
+	return Service
 end
-local Source = Decrypt(PAYLOAD, KEY, SIZE)
-local Fn, Err = loadstring(Source, "Components/Mobile.luau")
-if not Fn then
-	error("[ZyroHub] encrypted module failed to compile: " .. tostring(Err))
+
+local function Notify(Text)
+	pcall(function()
+		local StarterGui = GetService("StarterGui")
+		if StarterGui then
+			StarterGui:SetCore("SendNotification", {
+				Title = "ZyroHub",
+				Text = Text,
+				Duration = 4
+			})
+		end
+	end)
 end
-return Fn()
+
+local UserInputService = GetService("UserInputService")
+
+local function DetectMobile()
+	local Touch = UserInputService and UserInputService.TouchEnabled or false
+	local Keyboard = UserInputService and UserInputService.KeyboardEnabled or false
+	local Mouse = UserInputService and UserInputService.MouseEnabled or false
+
+	local SmallViewport = false
+	pcall(function()
+		local Camera = workspace.CurrentCamera
+		if Camera then
+			local Viewport = Camera.ViewportSize
+			SmallViewport = math.min(Viewport.X, Viewport.Y) <= 500
+		end
+	end)
+
+	-- Touch-only device, or a touch device with a phone-sized viewport.
+	return Touch and ((not Keyboard and not Mouse) or SmallViewport)
+end
+
+Platform.IsMobile = DetectMobile()
+
+local function GetParent()
+	local Env = rawget(getgenv(), "ZyroHub")
+	if Env and Env.Environment and Env.Environment.gethui then
+		local ok, HiddenUI = pcall(Env.Environment.gethui)
+		if ok and HiddenUI then
+			return HiddenUI
+		end
+	end
+
+	local CoreGui = GetService("CoreGui")
+	if CoreGui then
+		return CoreGui
+	end
+
+	local Players = GetService("Players")
+	local LocalPlayer = Players and Players.LocalPlayer
+	if LocalPlayer then
+		return LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	end
+
+	return nil
+end
+
+local function ResolveEnabled()
+	if Platform.Mode == "Enabled" then
+		return true
+	end
+	if Platform.Mode == "Disabled" then
+		return false
+	end
+	return Platform.IsMobile
+end
+
+local function BuildPanel(Library)
+	if Platform._Gui then
+		return
+	end
+
+	local Parent = GetParent()
+	if not Parent then
+		warn("[ZyroHub] Touch panel: no valid UI parent found.")
+		return
+	end
+
+	local Gui = Instance.new("ScreenGui")
+	Gui.Name = "ZyroHub_TouchPanel"
+	Gui.ResetOnSpawn = false
+	Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	Gui.DisplayOrder = 1000
+	Gui.Parent = Parent
+
+	-- Floating knob (draggable + tap to open/close the panel).
+	local Knob = Instance.new("ImageButton")
+	Knob.Name = "Knob"
+	Knob.Size = UDim2.fromOffset(64, 64)
+	Knob.Position = UDim2.new(0, 24, 0.6, 0)
+	Knob.BackgroundColor3 = Color3.fromRGB(8, 18, 24)
+	Knob.BorderSizePixel = 0
+	Knob.Image = ""
+	Knob.Parent = Gui
+
+	local KnobCorner = Instance.new("UICorner")
+	KnobCorner.CornerRadius = UDim.new(1, 0)
+	KnobCorner.Parent = Knob
+
+	local KnobStroke = Instance.new("UIStroke")
+	KnobStroke.Color = Color3.fromRGB(32, 211, 194)
+	KnobStroke.Thickness = 2
+	KnobStroke.Parent = Knob
+
+	local KnobLabel = Instance.new("TextLabel")
+	KnobLabel.Name = "Label"
+	KnobLabel.BackgroundTransparency = 1
+	KnobLabel.Size = UDim2.fromScale(1, 1)
+	KnobLabel.Font = Enum.Font.GothamBold
+	KnobLabel.Text = "ZH"
+	KnobLabel.TextColor3 = Color3.fromRGB(234, 247, 245)
+	KnobLabel.TextSize = 20
+	KnobLabel.Parent = Knob
+
+	-- Action panel (auto-height, 44px touch-friendly rows).
+	local Panel = Instance.new("Frame")
+	Panel.Name = "Panel"
+	Panel.Position = UDim2.new(0, 24, 0.6, 76)
+	Panel.Size = UDim2.new(0, 220, 0, 0)
+	Panel.AutomaticSize = Enum.AutomaticSize.Y
+	Panel.BackgroundColor3 = Color3.fromRGB(8, 18, 24)
+	Panel.BorderSizePixel = 0
+	Panel.Visible = false
+	Panel.Parent = Gui
+
+	local PanelCorner = Instance.new("UICorner")
+	PanelCorner.CornerRadius = UDim.new(0, 12)
+	PanelCorner.Parent = Panel
+
+	local PanelStroke = Instance.new("UIStroke")
+	PanelStroke.Color = Color3.fromRGB(43, 72, 82)
+	PanelStroke.Parent = Panel
+
+	local List = Instance.new("UIListLayout")
+	List.Padding = UDim.new(0, 6)
+	List.SortOrder = Enum.SortOrder.LayoutOrder
+	List.Parent = Panel
+
+	local Padding = Instance.new("UIPadding")
+	Padding.PaddingTop = UDim.new(0, 8)
+	Padding.PaddingBottom = UDim.new(0, 8)
+	Padding.PaddingLeft = UDim.new(0, 8)
+	Padding.PaddingRight = UDim.new(0, 8)
+	Padding.Parent = Panel
+
+	-- `Activated` handles both mouse and touch exactly once.
+	local function MakeButton(Text, LayoutOrder, OnClick)
+		local Button = Instance.new("TextButton")
+		Button.Name = "Action_" .. Text
+		Button.Size = UDim2.new(1, 0, 0, 44)
+		Button.BackgroundColor3 = Color3.fromRGB(18, 33, 42)
+		Button.BorderSizePixel = 0
+		Button.Font = Enum.Font.Gotham
+		Button.Text = Text
+		Button.TextColor3 = Color3.fromRGB(234, 247, 245)
+		Button.TextSize = 15
+		Button.AutoButtonColor = true
+		Button.LayoutOrder = LayoutOrder
+		Button.Parent = Panel
+
+		local Corner = Instance.new("UICorner")
+		Corner.CornerRadius = UDim.new(0, 8)
+		Corner.Parent = Button
+
+		Button.Activated:Connect(function()
+			local ok, Err = pcall(OnClick)
+			if not ok then
+				warn("[ZyroHub] Touch action error: " .. tostring(Err))
+			end
+		end)
+
+		return Button
+	end
+
+	local Order = 0
+
+	Order += 1
+	MakeButton("TOGGLE UI", Order, function()
+		if type(Library.Toggle) == "function" then
+			Library:Toggle()
+		elseif Library.KeybindFrame then
+			Library.KeybindFrame.Visible = not Library.KeybindFrame.Visible
+		end
+	end)
+
+	for _, Action in Platform.Actions do
+		Order += 1
+		MakeButton(Action.Label, Order, function()
+			local Toggles = Library.Toggles
+			local Toggle = Toggles and Toggles[Action.Toggle]
+			if Toggle then
+				Toggle:SetValue(not Toggle.Value)
+			end
+		end)
+	end
+
+	-- Dragging (mouse + touch). Tap = toggle panel, drag = reposition.
+	local Dragging = false
+	local DragStart, StartPos
+
+	Knob.InputBegan:Connect(function(Input)
+		if Input.UserInputType == Enum.UserInputType.MouseButton1
+			or Input.UserInputType == Enum.UserInputType.Touch then
+			Dragging = true
+			DragStart = Input.Position
+			StartPos = Knob.Position
+		end
+	end)
+
+	Knob.InputEnded:Connect(function(Input)
+		if Input.UserInputType == Enum.UserInputType.MouseButton1
+			or Input.UserInputType == Enum.UserInputType.Touch then
+			Dragging = false
+		end
+	end)
+
+	Knob.InputChanged:Connect(function(Input)
+		if not Dragging then
+			return
+		end
+		if Input.UserInputType == Enum.UserInputType.MouseMovement
+			or Input.UserInputType == Enum.UserInputType.Touch then
+			local Delta = Input.Position - DragStart
+			Knob.Position = UDim2.new(
+				StartPos.X.Scale, StartPos.X.Offset + Delta.X,
+				StartPos.Y.Scale, StartPos.Y.Offset + Delta.Y
+			)
+		end
+	end)
+
+	Knob.Activated:Connect(function()
+		Panel.Visible = not Panel.Visible
+	end)
+
+	Platform._Gui = Gui
+	Platform._Library = Library
+end
+
+--- Initializes the platform layer after the main window exists.
+function Platform.Init(Options)
+	Options = Options or {}
+	Platform.Actions = Options.Actions or {}
+
+	if Platform.Mode == "Auto" then
+		local Config = rawget(getgenv(), "ZyroHub")
+		Platform.Mode = (Config and Config.Config and Config.Config.TouchControls) or "Auto"
+	end
+
+	BuildPanel(Options.Library)
+	Platform.SetMode(Platform.Mode)
+end
+
+--- Applies a control mode ("Auto" | "Enabled" | "Disabled") live.
+-- Returns whether the panel ended up visible.
+function Platform.SetMode(Mode)
+	if Mode ~= "Auto" and Mode ~= "Enabled" and Mode ~= "Disabled" then
+		Mode = "Auto"
+	end
+	Platform.Mode = Mode
+
+	local Enabled = ResolveEnabled()
+	if Platform._Gui then
+		Platform._Gui.Enabled = Enabled
+	end
+	return Enabled
+end
+
+return Platform

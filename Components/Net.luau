@@ -1,37 +1,156 @@
--- ZyroHub encrypted module (Components/Net.luau) - built 2026-09-07 20:27 UTC
--- Readable source lives in src/ (never published). Edit src/, then run Scripts/build.ps1.
-local PAYLOAD = "0rLm6MCPt+vSqOxA7zAMLgad9bmz/94KwHyuzIrA25/G1aDB16Sw0JG30p2ZqpCWtonBBsrmBMnp/MbVurLax6qxbtiryPHhrbj2oful5tSf4KnC2XRkfkBZjUuBj1N6mmJ1u4GSsm6ZrVFtgV5XnKCiy5BiuJKsuYafr3hJi2x9dKNrfruXgzSycmOsoJpipWZ5U2GKpGEwjwySmWKJj1k2j2hykk+ANPwuQhIYOAseOvgjNPsZNfUSL+0KCOghGDf0+oFk6zYqJnN5X0ztbjdJXNxOZihFYRJEXtU/TCT3Wx88SxntUSE5SBYt+Q8uP/7kPgouRaO98K7Lyamvsdepu+/WrLbroeXo3cihIO8JGt7+MKMFGNcUItsBzNoEF+D1G9uuCuL0xNWa/N/vB7/zttLrCsvm9rDZiq2/v+Wz0LDarsWZTKapnolioGR4ll57mFdzkU+Fk1d+jaa+5aG6iIvBz5a8haquwKC0fYq0d5KkvTijt4ihS32GgWcYJ3FYLjhtI3l4X21EhE1eVx88WRhBUjWcmWqYTmyPk2BunF12oGIyimVziltxf0AngVIdhkJohUBgUTDySGnsPmxyQUhWOWpOYU4sZ/U6Js3nGtn1E9EHFdkAD9r7Ed7qCsvxDNfzMB3dURgo/wstTRctTAXXPQXPEfwKA9u1DkXaAvtGszA1NRT6JfwOHvMBKugKGeAc1uMUvYW80p+ry4yyzZi0yJievpGkwH6puoHhB8rbALjUncC1yuF7zP3ous/1qrO5ouGu6Wi/26XH4Z934pzb6arUkaXQk7W/0ZFzz6e5ia2nxD9PgT9qe0JgfDxZdjRRTy81N10vQXVch4+2eWu3tk5qsW5+rW+ZXWqHql2QoWGHUmaMp3VyjlI0nmA2nmJlQFt7hABujkR0hUZofgP/+vD2+B7wAkkr8zBTFlVjXQ/oJuoLHBZGcS1IZShQbN1FZSP/ayM6VxM2ZCA7Cx0mRyM5SMFBUAniBgwqRsMYHgELEuuxEUYytP9Bltfw5dCp56u/3aXC35662JbM2p7F1J/oCtDbz9UII+sKzOzjCdqxxMP7AoXoFcTuEnfa18a7wq+10wXvvsv5eQAG9OWz9bGA5KfM7LTN3kR3m1+GlWCBl2RwkFF3kl15jV1jg1ZpzpZuyJmzzIGxv3xVlIF9O7N4lciyioW5N2/ArKhwuy2UqHOJr3RKRwKLmQ0xQwuOp2hynRJmmHI6ax5/MQETdk19kwdCQVwLJeL/IQH6QGc9XINlOlCDP3+BdyIbbEFLZDFGcOEdGyZQZi8UFzhIay84Wxg9FPELIfXyFfD4Gtbd67HPMQQyRf4gFgO72uO310EmytgPwjUI/+Tw/cHa977b+eUC9N0TIrve6bnU7LzL66YAGrPPEaKys4OVJZKerHaRrJCtvZ7Z2b7BqenPiMnBeYUGswYM+ee5rnDgomzK5abH4l2R+2OM36XO5624lnB76bbP16KqzJ5t0pVy15KthG2vxItZq3h/TVIhMrC4e5jOgnOTa7GMeR4vwBgyUg6MrV+TrCSRr3OJsHKEoxZjnHZxl3R+kV5zUjZ0kVAyMu8Li0xdWUT+T3EECnFqTVuDM3k3SRdAcTNScPRQZzJGLQRYdRhRbTxQYC8CFh4+ZSgLExEqViH4+LPdThLqVBU3AA0m2QgRwTUIH/8ZARhR+jg97Sz5NAG0z5azOesWNfAi4vQWKJSyx/AFG4WowvAPF+X2ysL+IorSxt/sHs7pFYfj387Hx/bQlMmzfYn2ywgI1u60sn11kFfU7meo77WV5LXSnY3X9Xqd5q/I7LTP4qq5316y2492rJzClm2z2ImvqomOiLePW8S0jZbChbzAb657toM2URg1tXeHo2xWs3NyqniYpXFFWT2MqnSHmiZJTG91j1iDUDR7nxdLkVdnbktQUW9KYlBsS1iMOYqAdif0ZTtcfjlQb/LyDcoAbi8QbjUubT1IXx8BXTVHFwo5XC44U81MURU897TQ7asxIhEYFzm98k85Dg9DouPl2iEDN6S10vYcL5ewzfQdOv8jLqv/JwERJN8HypIJJuybuI6eHN38C92vEeD2CNfp7cyEtPvS2QoEib8Fzg7Gn4dfBLvN9r6X8sDV6Lfi9rmaqll3jFnI66DE6mm47arB46fHuKTDi29ws5G9uYmztYiIjHVBhNmtlKDGiaLTvGBAYiM2VHyWbV+cp3aurX56t3ZOuHmCqwsuSBMvjX5xond7pDeQlS1kkmFNlldnKAI5TXxEQJWBTFOLO32TfW5GOAYOh+H7F9byEBlkfTlZIwsPJyxXcC4tdS0JJ9jb+s3g/AVBZSjyK84fTR437a6xstiqvCtDFg9XAkxO9f25Dai51p67TLe30o/FL/wZ0Zm5KwED6I2wJvoMyZafvPEHF9MJzroBJY/Jydnl+cnN3rjJ2Rz2yt0agsfNtqO0Ec7f1svVsniL6rXhq6nv97+5/LaOxa/d67/Y67q44bp55KV+3Z/AfTpadJS0poSVS7eYo8zEj5/TO6fDyoiExYKEyIqotn1UcxVIVYKcuoaktjVmr3hIpHyOXlOCqjWRqF2TlV1+nVYujFdqJClYYkBWW4t1TVqSQUCEhmf8X0xoPkFoeDpZcNYJcj9cFNwAE0JRZSRVJDVgbTJJXjdJF/hBVCA7QhNDVNIKJggTEh4KMBTfsrtZAlVZSzK9/fksQwj+SPTxLe0oM8Hb6MHi6toEJuwPEPUl+vcJK+vE2tH/1/C84NK128iqsoaOzbaPmNrBiZXWyhcGvJJoAc7Yn2SEnoCcrZ3m+bjd/ceV8MXU+L6L6MDR6rbKl6vL3Veqx4eklJnD4Ju7Z5eOlrqaWZWIWmiYkcTawHOLxo6exzuquoegvXq1tYdkeCJAuIiIpnJMrYecpYaBp3k+g2t5lWeCmUiBpF9tbRBBX4taXZM++P8zUombkXlOPlZvhEEhaURmgTBoOvU5SPYZgE5YbzVUKuD5DNw6ZzD/HgxTai49W9YREOH91rO4ujgXHw8pGytdBEoiUD0DB9Tj9c7j9xTv8LAA9KPHMQUc26W00fQdLPUc5PoPKPAUJekT1sIJKuwGFrLt7dLVuAfW4BUJlaC5bK8ZAerODIzeC8zeDMDi/3euoGGHlsHfr6HW/nfY/bvg8bnA7W7C65+GvKzSpqW23ZWzupeVmMtLnt+8Tqbcl4evzcBRypifxougvopcdGq/xoeHw3t9sYCRrixZa4qaq4QpRhgrR0GVri2KmmR7mWB6cFFkHDxGd6SIN26QJ4mOiHAGS/MEIeliiD0CHdpsgz0pHORgf0L3FNj7ckxhaktGbD4DTSJcJwNNZypAYBf3IBwoJz4S6xMdGC9dEDdNTjHO8LHERRAhPAbWGgD09t8zQrv58gsaLPAlQQodNv/GEQAZMuEO5qHiI/AGIMHx+9OU5Q6Oog4U4+r42wzPy5pwrdrhDtfxCnu9A3+p3M30nmbiAcR5llp9u4aiqZ/E87XN5rKK25fS6JyFlpeyspeepcRPtuPAl66Rh67PxraMsI62u09gw32kwn24vzyls4CpdJWcbYKctDqZq32IpXdGr2mdrnKTawokZCIyYlVqbZBedVaRW2JSW5uklnJNRl1yjk1vhQkZhkcrh0ZwM01tNVZdgjBhMEFYdEdWczkVEMtScjJFcidKZtYhNiXx/0QlJl8G9x9WEVI7SknVBwAxSc7P6acmR/ktRr4YQxQyOQi82ZkiQP8ZOLwRLcHIFucgM/EX37y8Kdr1/t6g4BXg5ywI5O3ck7u7r5rcDeD1ENSjB8Do/pHVD9P23MX1v7ni/HqEnGbe+8GMkGB2j0zX5WbT62C+6Jx1nKaPnM2cqczPq7LYkJfEzMWg1aFqf5usxo5JZCFXr4+8yISneGJRo3eryIquWygtTYqPsmpdk3uGtXaRljx3d1xfR4dtY1peFyOkUaSql4VXTPsMLfIOK0pjOyFwkCdxg0dWkllmd0AhPf9vd0RTEuL0EM41bztbdCciXR0/OvsqKUcaOSMLxcwAtvpkTDUZV9cpVhcpVwstSsL566zS4azNHxUpAQssPhQhNgkSK8HvKekZJ9kIN+vIANz7/tvH4x2ftNz26Pgq0Rfet593tXnpEM6wsW2IpsD/A3CUosnxDs2Bnl6E/8ed2cLazcPZ7prr9r7N8WyKnrDBvKVKSW5AUunTnaXlT+Lhs7eimVGNxJ5ookSwwX2+zEyxz5Op0JKkwz5lZCxHWysxuoCiv3qhZFCXuzOLsmODhF0mQ4dbcqN1XHmiGHeYj39VeVd/TRUWMO4KKEKBhQ4ZJe8QJlNcNkZoYERyM0RXbfw3bDwUeTRPdNPtCcfk4iUuJEgl625RDitcFSEYMTklUNMEBR0tSBIuCARJUAlBRRY2BtTE4aHH4q3JRgkePw8e7M8jPLsdLOgIJ+gI/6LD4wvi8RAI8e/ktRccFv69Fe2xz3uVsXCMqsQDB5Cbp3GSqHXh/nnuBbfm9smL7MzVrZTp3a/Y8ay48bXPvqBph8qvrqqIsrDioYSEeGM8ej6c1qS+zI1kn0CaxZywazNTaTZCYo2lx4xwqZqNwJSlqU+Yq3eSlG6foCFbPB5lZY1kc2Q2CRJH/UFEfopom1yDUBJbj118klOCRU9xiFZwhQ5giU0hPgcxRQcwbkNbdBhdgvAcOOoJJO//UjAsM1LdMmRNKC9j1VxrYVXjFeDY87rX9LMrUgbl8LPa6RA6RrzF5KUnSwzR4rW416odNq4nOQXPHvodN+YFvvLs6xqLms20iv4l4iDrBRHXKO3/BbXwD9Ps8MgSBIvPwY7zBNnoAcGlq3OOonLm8NTjuXHV5cvi+5Te6KGBpaCus9KjcfnbYrLmq97mk8Kc5Z67z5i+0KWChkZ6llpz1pzB2KOmy4VstJyyg1M9Wiw/t36fWR06snuOVA8vKgl4baJ1hLRNVny3ap+kQSldpF4bNgEblGJ3ilmEmFs0cVODXzljkjJ5gV98jhMaHu4AhTZwgkZgLkFQdCwRNDUoPWQ04BFTMjIQwwoKIg3mFwE0YRg6D9nqSxVJWhdBSc/7Bhg3RAM7VRH0/CMbRg3YOQgiQA7TNfAVNfwWB6Lx/R/u9TwU6a8l6CLhGgbtG+75ENv33nyV1pS9/dQKGuL/GpT0CManD9ztEtnYutmZB7jyBMjisMbO9r3Kj2O4vZGxvvWQcXDmqZ/n6dSq613E46m935d6dzLE4Z662prB1lWPxpaCr52rwnujuJymuzyCsXqdtlyTxDVGeXZ2OFJHfr+fcl+naaVsRS0Fpm11kWQ1hWCCnUyETS44mld/jzBIh1dsjBdOgFJdejNgkAEgZkpiO9/5FTNNBTM6QRMYRoBkKzcnMWlpZ/HHBMhFVi1LZSDuWhNMGtIBCg4uYykyKxksQtAPTyUiOskqRwrhPggYN7MUMvsNFOrx/Bf/0uzY/LXxuCg0LBLfMKgIIe0LJtz9FJPkENYCDr/6JKGtsW+UC9/xrnuEoXPpCLrj/3q+AoCR077bh4Rtwtqzv7u3ucH5qO/ro7mu8rO42Gd4uJzF3Jew0aHAiqTIjHymyI6xspfHiz9CYZSkeoayyDt/wzWmt3KYNRIXGahtjsOneTW4abBzXE8imVyPpmthq1duTzCSnmWFl1s3k1tvkkxxSFl+lRMejCYfQEwmPhZghUhgcUITXThCRWkySXYeDzduKWpTYmHqK+NLZDBOaR9AV9YpZCgGFcTi9yA1S7XY9r7ZUCMdOxngSwXx9u8gSgwgRa/pyvrz8yT2xBYltqTWiy8v3hfxNKQHIZ4PINwBvnmuvOkDIe0LHZz2EdW7yp2zAM/0Dd3JEr3jt7DxBsze/7WN0L3Dwutrxv+Yc8vHY6z9oZN957TL5KDQoazD5aTY3abGlny706WutI/JlGJy2qWv0KGrzINvqoSwzoWqfDo7NhV3gp4ZKF9DGIuzeL29rktWp3mPpHQqRF6Dl/4xQgOSlG6Qo2wqeFCF"
-local KEY = "ZyroHub-Enc-v1-7Kq2mX9pR4tW8yB3nF6jH1cV5sL0dG2aZ9eQ4uI7oP3rT6wY"
-local SIZE = 4515
-local function Decrypt(Payload, Key, Size)
-	local Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-	local Reverse = {}
-	for Index = 1, 64 do
-		Reverse[Alphabet:sub(Index, Index)] = string.char(Index - 1)
+--[[
+    ZyroHub :: Net
+    --------------
+    Enterprise-grade dependency loading:
+
+      1. PINNING   - Every external dependency is fetched from a pinned commit
+                     SHA, so a force-push upstream can never inject code into
+                     already-shipped clients and a broken upstream commit can
+                     never break users on the next run.
+      2. CACHE     - Every successful download is mirrored to `ZyroHubCache/`.
+                     If the network is down (or raw.githubusercontent is
+                     blocked/rate-limited), the cached mirror is used and the
+                     user is clearly notified instead of the hub crashing.
+      3. SANITY    - Responses are validated before use (non-empty, not an
+                     HTML error page) and every fetch/compile/runtime failure
+                     is isolated and reported, never silent.
+]]
+
+local Net = {
+	Pins = {
+		-- deividcomsono/Obsidian @ main, verified 2026-08-31
+		Obsidian = "0fd2685d460c2276556cd8ccd9516025882fe33a",
+	},
+
+	-- CacheKey -> "network" | "cache" | "failed"; surfaced in the Info tab.
+	Status = {},
+}
+
+local function GetService(Name)
+	local ok, Service = pcall(game.GetService, game, Name)
+	if not ok or not Service then
+		return nil
 	end
-	local Mapped = ((Payload:gsub(".", Reverse)):gsub("=", "\0"))
-	local Bytes = {}
-	local Pos = 0
-	for Group = 1, #Mapped, 4 do
-		local A, B, C, D = Mapped:byte(Group, Group + 3)
-		local N = A * 262144 + B * 4096 + C * 64 + D
-		Pos = Pos + 1
-		Bytes[Pos] = math.floor(N / 65536) % 256
-		Pos = Pos + 1
-		Bytes[Pos] = math.floor(N / 256) % 256
-		Pos = Pos + 1
-		Bytes[Pos] = N % 256
+	local Env = rawget(getgenv(), "ZyroHub")
+	if Env and Env.Environment and Env.Environment.cloneref then
+		local okCloned, Cloned = pcall(Env.Environment.cloneref, Service)
+		if okCloned and Cloned then
+			return Cloned
+		end
 	end
-	local KeyLength = #Key
-	local Chars = {}
-	for Index = 1, Size do
-		Chars[Index] = string.char((Bytes[Index] - Key:byte(((Index - 1) % KeyLength) + 1) - (Index % 256)) % 256)
-	end
-	return table.concat(Chars)
+	return Service
 end
-local Source = Decrypt(PAYLOAD, KEY, SIZE)
-local Fn, Err = loadstring(Source, "Components/Net.luau")
-if not Fn then
-	error("[ZyroHub] encrypted module failed to compile: " .. tostring(Err))
+
+local function Notify(Text)
+	pcall(function()
+		local StarterGui = GetService("StarterGui")
+		if StarterGui then
+			StarterGui:SetCore("SendNotification", {
+				Title = "ZyroHub",
+				Text = Text,
+				Duration = 6
+			})
+		end
+	end)
 end
-return Fn()
+
+local Env = rawget(getgenv(), "ZyroHub") and ZyroHub.Environment or nil
+
+local function HasFileSystem()
+	return Env and Env.writefile and Env.readfile and Env.isfile
+end
+
+local function CachePath(CacheKey)
+	return "ZyroHubCache/" .. CacheKey:gsub("[^%w%-_%.]", "_") .. ".lua"
+end
+
+-- Rejects empty bodies and HTML error pages (404/rate-limit responses).
+local function IsValidSource(Source)
+	return type(Source) == "string"
+		and #Source > 32
+		and Source:sub(1, 1) ~= "<"
+end
+
+local function EnsureCacheFolder()
+	pcall(function()
+		if Env.isfolder and Env.makefolder and not Env.isfolder("ZyroHubCache") then
+			Env.makefolder("ZyroHubCache")
+		end
+	end)
+end
+
+function Net.Compile(Source, ChunkName)
+	local Fn, Err = loadstring(Source, ChunkName or "ZyroHub")
+	return Fn, Err
+end
+
+--- Fetches `Url`, caching under `CacheKey`, falling back to the cached mirror.
+-- Returns the source string, or nil on total failure.
+function Net:Fetch(CacheKey, Url)
+	local Source
+	local ok, Result = pcall(function()
+		return game:HttpGet(Url)
+	end)
+
+	if ok and IsValidSource(Result) then
+		Source = Result
+		self.Status[CacheKey] = "network"
+
+		if HasFileSystem() then
+			EnsureCacheFolder()
+			pcall(function()
+				Env.writefile(CachePath(CacheKey), Source)
+			end)
+		end
+	else
+		if HasFileSystem() then
+			local okHas, Has = pcall(function()
+				return Env.isfile(CachePath(CacheKey))
+			end)
+			if okHas and Has then
+				local okRead, Data = pcall(function()
+					return Env.readfile(CachePath(CacheKey))
+				end)
+				if okRead and IsValidSource(Data) then
+					Source = Data
+					self.Status[CacheKey] = "cache"
+					Notify("Network failed for " .. CacheKey .. " - using cached copy.")
+				end
+			end
+		end
+
+		if not Source then
+			self.Status[CacheKey] = "failed"
+			warn("[ZyroHub] Failed to fetch dependency: " .. tostring(Url))
+		end
+	end
+
+	return Source
+end
+
+function Net:GetStatus()
+	return self.Status
+end
+
+--- Fetch + compile + execute, with every failure isolated and described.
+-- Returns the module's return value, or nil + an error string.
+function Net:LoadModule(CacheKey, Url, ChunkName)
+	local Source = self:Fetch(CacheKey, Url)
+	if not Source then
+		return nil, ("[ZyroHub] Could not load dependency: %s"):format(tostring(CacheKey))
+	end
+
+	local Fn, Err = self.Compile(Source, ChunkName or CacheKey)
+	if not Fn then
+		return nil, ("[ZyroHub] Compile failed for %s: %s"):format(tostring(CacheKey), tostring(Err))
+	end
+
+	local ok, Result = pcall(Fn)
+	if not ok then
+		return nil, ("[ZyroHub] Runtime error in %s: %s"):format(tostring(CacheKey), tostring(Result))
+	end
+
+	return Result
+end
+
+return Net

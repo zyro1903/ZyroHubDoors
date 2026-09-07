@@ -34,15 +34,6 @@ This project does not collect analytics, account data, IP addresses, HWIDs, or e
 
 Every push and pull request runs `scripts/validate.ps1` to check for removed telemetry and legacy traces.
 
-## Build (maintainers)
-
-The repository ships encrypted Luau builds. The readable source lives in `src/`
-and is not published. After editing `src/`, rebuild the public stubs with:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File Scripts/build.ps1
-```
-
 ## Credits
 
 Creator: Zyro

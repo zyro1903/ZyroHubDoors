@@ -1,37 +1,650 @@
--- ZyroHub encrypted module (Components/Environment.luau) - built 2026-09-07 20:27 UTC
--- Readable source lives in src/ (never published). Edit src/, then run Scripts/build.ps1.
-local PAYLOAD = "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"
-local KEY = "ZyroHub-Enc-v1-7Kq2mX9pR4tW8yB3nF6jH1cV5sL0dG2aZ9eQ4uI7oP3rT6wY"
-local SIZE = 21138
-local function Decrypt(Payload, Key, Size)
-	local Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-	local Reverse = {}
-	for Index = 1, 64 do
-		Reverse[Alphabet:sub(Index, Index)] = string.char(Index - 1)
+local Environment = {}
+local Log = {}
+local Tested = 0
+local Failed = 0
+local Passed = 0
+
+local BrokenFeatures = {
+	["Volcano"] = {"run_on_actor", "oth"},
+	["Opiumware"] = {"gethiddenproperty"},
+	["Solara"] = {"require"},
+	["Xeno"] = {"require"},
+}
+
+local RootEnv = getfenv(0)
+
+local function GetGlobal(Path)
+	local Value = RootEnv
+	while Value ~= nil and Path ~= "" do
+		local Name, NextPath = string.match(Path, "^([^.]+)%.?(.*)$")
+		Value = Value[Name]
+		Path = NextPath
 	end
-	local Mapped = ((Payload:gsub(".", Reverse)):gsub("=", "\0"))
-	local Bytes = {}
-	local Pos = 0
-	for Group = 1, #Mapped, 4 do
-		local A, B, C, D = Mapped:byte(Group, Group + 3)
-		local N = A * 262144 + B * 4096 + C * 64 + D
-		Pos = Pos + 1
-		Bytes[Pos] = math.floor(N / 65536) % 256
-		Pos = Pos + 1
-		Bytes[Pos] = math.floor(N / 256) % 256
-		Pos = Pos + 1
-		Bytes[Pos] = N % 256
-	end
-	local KeyLength = #Key
-	local Chars = {}
-	for Index = 1, Size do
-		Chars[Index] = string.char((Bytes[Index] - Key:byte(((Index - 1) % KeyLength) + 1) - (Index % 256)) % 256)
-	end
-	return table.concat(Chars)
+	return Value
 end
-local Source = Decrypt(PAYLOAD, KEY, SIZE)
-local Fn, Err = loadstring(Source, "Components/Environment.luau")
-if not Fn then
-	error("[ZyroHub] encrypted module failed to compile: " .. tostring(Err))
+
+local Global = setmetatable({}, {
+	__index = function(Self, Name)
+		return GetGlobal(Name)
+	end,
+})
+
+local Services = setmetatable({}, {
+	__index = function(Self, Name)
+		return game:GetService(Name)
+	end,
+})
+
+local Results = {}
+
+local function AddResult(Name, Text, DidPass)
+	table.insert(Results, Text)
+	Log[Name] = {
+		Passed = DidPass,
+		Reason = Text,
+	}
 end
-return Fn()
+
+Environment.Results = Results
+Environment.PrintResults = function()
+	local Executor = Environment.identifyexecutor and Environment.identifyexecutor() or "Unknown"
+	print("Test Result")
+	for _, Result in ipairs(Results) do
+		print(Result)
+		task.wait()
+	end
+	print("Executor - " .. Executor)
+	print("Tests Passed: " .. Passed .. "/" .. Tested)
+	print("Test Score: " .. math.floor((Passed / Tested) * 100 + 0.5) .. "%")
+end
+
+local function RunTest(Name, Test, InternalName)
+	local TimedOut = false
+	Tested = Tested + 1
+
+	local ExecutorName = Global.identifyexecutor and Global.identifyexecutor() or "Unknown"
+	local BrokenList = BrokenFeatures[ExecutorName]
+	if BrokenList and table.find(BrokenList, Name) then
+		AddResult(Name, "❌ " .. Name .. " failed: test has been skipped", false)
+		Failed = Failed + 1
+		return
+	end
+
+	local TargetGlobal = Global[Name]
+	if not TargetGlobal then
+		AddResult(Name, "❌ " .. Name .. " failed: function is nil", false)
+		Failed = Failed + 1
+		return
+	end
+
+	local Time = 0
+	local Finished = false
+
+	task.spawn(function()
+		local Success, Result = pcall(Test)
+		if not TimedOut then
+			if Success then
+				local Key = InternalName or Name
+				Environment[Key] = TargetGlobal
+				AddResult(Name, "✅ " .. Name, true)
+				Passed = Passed + 1
+			else
+				AddResult(Name, "❌ " .. Name .. " failed: " .. tostring(Result), false)
+				Failed = Failed + 1
+			end
+		end
+		Finished = true
+	end)
+
+	while not Finished do
+		Time = Time + 1
+		if Time > 100 then
+			AddResult(Name, "❌ " .. Name .. " failed: test timed out", false)
+			Failed = Failed + 1
+			TimedOut = true
+			break
+		end
+		task.wait(0.1)
+	end
+end
+
+RunTest("getgenv", function()
+	assert(typeof(Global.getgenv()) == "table", "Did not return a table")
+	Global.getgenv().Example = "Test"
+	assert(Example == "Test", "Failed to set a global variable")
+	Global.getgenv().Example = nil
+end)
+
+RunTest("getrenv", function()
+	assert(Environment.getgenv, "getgenv is required to test")
+	local Env = Global.getrenv()
+	assert(typeof(Env) == "table", "Did not return a table")
+	assert(typeof(Env.print) == "function", "Did not return an environment table")
+	assert(Global.getrenv ~= Global.getgenv, "getrenv is an alias of getgenv")
+	assert(Global.getgenv() ~= Global.getrenv(), "Returned executor environment")
+	local Success = pcall(function()
+		return Env.loadstring([[return 10]])()
+	end)
+	assert(Success == false, "Should error when calling loadstring from roblox environment")
+end)
+
+RunTest("getgc", function()
+	local TestFunction = function()
+		return 10
+	end
+	local TestTable = { Value = 10 }
+	local YesTables = Global.getgc(true)
+	local NoTables = Global.getgc(false)
+	assert(table.find(YesTables, TestTable), "Failed to find a table")
+	assert(table.find(YesTables, TestFunction), "Failed to find a function")
+	assert(not table.find(NoTables, TestTable), "Should not return a table when called with false")
+	assert(table.find(NoTables, TestFunction), "Failed to find a function")
+end)
+
+RunTest("identifyexecutor", function()
+	assert(typeof(Global.identifyexecutor()) == "string", "Did not return a string")
+end)
+
+RunTest("request", function()
+	local Response = Global.request({
+		Url = getgenv().ZyroHub.BaseUrl .. "Components/Environment.luau",
+		Method = "GET",
+	})
+	assert(Response.StatusCode == 200, "Status code should be 200")
+	assert(typeof(Response.Body) == "string", "Body should be a string")
+end)
+
+RunTest("cloneref", function()
+	local TestPart = Instance.new("Part")
+	local Clone = Global.cloneref(TestPart)
+	assert(typeof(Clone) == "Instance", "Should return an Instance")
+	assert(TestPart ~= Clone, "Clone should not be equal to original")
+	TestPart.Name = "Test"
+	assert(Clone.Name == "Test", "Changing the original did not change the clone")
+	TestPart:Destroy()
+end)
+
+RunTest("gethui", function()
+	local Hui = Global.gethui()
+	assert(typeof(Hui) == "Instance", "Should return an instance")
+	local ValidClasses = { "ScreenGui", "Folder", "BasePlayerGui", "CoreGui" }
+	if not Hui:IsDescendantOf(Services.CoreGui) and Hui.ClassName ~= "CoreGui" or not table.find(ValidClasses, Hui.ClassName) then
+		error("Did not return a valid gui container")
+	end
+end)
+
+RunTest("getcallbackvalue", function()
+	local TestBindable = Instance.new("BindableFunction")
+	TestBindable.OnInvoke = function(Value)
+		return Value * 10
+	end
+	local Callback = Global.getcallbackvalue(TestBindable, "OnInvoke")
+	local Success, Result = pcall(function()
+		assert(typeof(Callback) == "function", "Did not return a function")
+		assert(Callback(5) == 50, "Did not return the callback value")
+	end)
+	TestBindable:Destroy()
+	assert(Success, Result)
+end)
+
+RunTest("getinstances", function()
+	local TestPart1 = Instance.new("Part")
+	local TestPart2 = Instance.new("Part", Services.Workspace)
+	local InstanceList = Global.getinstances()
+	local Found1 = table.find(InstanceList, TestPart1)
+	local Found2 = table.find(InstanceList, TestPart2)
+	TestPart1:Destroy()
+	TestPart2:Destroy()
+	assert(Found2, "Did not return an instance")
+	assert(Found1, "Did not return an instance parented to nil")
+end)
+
+RunTest("getnilinstances", function()
+	local TestPart1 = Instance.new("Part")
+	local TestPart2 = Instance.new("Part", Services.Workspace)
+	local InstanceList = Global.getnilinstances()
+	local FoundNil = table.find(InstanceList, TestPart1)
+	local FoundParented = table.find(InstanceList, TestPart2)
+	TestPart1:Destroy()
+	TestPart2:Destroy()
+	assert(not FoundParented, "Returned an instance not parented to nil")
+	assert(FoundNil, "Did not return an instance parented to nil")
+end)
+
+RunTest("fireproximityprompt", function()
+	local TestPart = Instance.new("Part", Services.Workspace)
+	local TestPrompt = Instance.new("ProximityPrompt", TestPart)
+	local Fired = false
+	local Connection = TestPrompt.Triggered:Connect(function()
+		Fired = true
+	end)
+	Global.fireproximityprompt(TestPrompt)
+	local Tries = 0
+	while not Fired and Tries < 10 do
+		Tries = Tries + 1
+		task.wait(0.1)
+	end
+	Connection:Disconnect()
+	TestPart:Destroy()
+	assert(Fired == true, "Failed to fire a proximity prompt")
+end)
+
+RunTest("fireclickdetector", function()
+	local TestPart = Instance.new("Part", Services.Workspace)
+	local TestClick = Instance.new("ClickDetector", TestPart)
+	local Fired = false
+	local Connection = TestClick.MouseClick:Connect(function()
+		Fired = true
+	end)
+	Global.fireclickdetector(TestClick)
+	local Tries = 0
+	while not Fired and Tries < 10 do
+		Tries = Tries + 1
+		task.wait(0.1)
+	end
+	Connection:Disconnect()
+	TestPart:Destroy()
+	assert(Fired == true, "Failed to fire a click detector")
+end)
+
+RunTest("firetouchinterest", function()
+	local TestPart1 = Instance.new("Part", Services.Workspace)
+	TestPart1.Position = Vector3.new(0, 1000, 0)
+	local TestPart2 = Instance.new("Part", Services.Workspace)
+	TestPart2.Position = Vector3.new(0, 1000, 0)
+	local Fired = false
+	local Connection = TestPart1.Touched:Connect(function(Child)
+		if Child == TestPart2 then
+			Fired = true
+		end
+	end)
+	Global.firetouchinterest(TestPart1, TestPart2, 0)
+	task.wait()
+	Global.firetouchinterest(TestPart1, TestPart2, 1)
+	local Tries = 0
+	while not Fired and Tries < 10 do
+		Tries = Tries + 1
+		task.wait(0.1)
+	end
+	Connection:Disconnect()
+	TestPart1:Destroy()
+	TestPart2:Destroy()
+	assert(Fired == true, "Failed to fire a touch interest")
+end)
+
+RunTest("clonefunction", function()
+	local TestFunction = function()
+		return 10
+	end
+	local TestClone = Global.clonefunction(TestFunction)
+	assert(TestFunction ~= TestClone, "Returned the original function")
+	assert(TestFunction() == TestClone(), "Clone did not return the same as the original")
+end)
+
+RunTest("newcclosure", function()
+	local TestFunction = function()
+		return 10
+	end
+	local TestC = Global.newcclosure(TestFunction)
+	assert(TestFunction ~= TestC, "Returned the original function")
+	assert(TestFunction() == TestC(), "Did not return the same value as the original")
+	assert(TestC() == 10, "Did not return the correct value")
+	assert(debug.info(TestC, "s") == "[C]", "Did not return a C function")
+end)
+
+RunTest("hookfunction", function()
+	local TestFunction = function()
+		return 10
+	end
+	local TestC = Global.newcclosure(function()
+		return 25
+	end)
+	local TestHook = function()
+		return 100
+	end
+	local Old = Global.hookfunction(TestFunction, TestHook)
+	local OldC = Global.hookfunction(TestC, TestHook)
+	assert(TestFunction ~= TestHook, "Original and hook are the same function")
+	assert(debug.info(TestC, "s") == "[C]", "Hooked C function is no longer in C")
+	assert(TestFunction() == 100, "Did not change the return value")
+	assert(Old() == 10, "Did not return the original function")
+	assert(OldC() == 25, "Did not return the original C function")
+end)
+
+RunTest("restorefunction", function()
+	assert(Environment.hookfunction, "hookfunction is required to test")
+	local TestFunction = function()
+		return 10
+	end
+	local TestHook = function()
+		return 100
+	end
+	Global.hookfunction(TestFunction, TestHook)
+	Global.restorefunction(TestFunction)
+	assert(TestFunction() == 10, "Failed to unhook a function")
+end)
+
+RunTest("isfunctionhooked", function()
+	assert(Environment.hookfunction, "hookfunction is required to test")
+	assert(Environment.restorefunction, "restorefunction is required to test")
+	local TestFunction = function()
+		return 10
+	end
+	local TestHook = function()
+		return 100
+	end
+	Global.hookfunction(TestFunction, TestHook)
+	assert(Global.isfunctionhooked(TestFunction) == true, "Did not return true for a hooked function")
+	Global.restorefunction(TestFunction)
+	assert(Global.isfunctionhooked(TestFunction) == false, "Did not return false for an unhooked function")
+end)
+
+RunTest("isexecutorclosure", function()
+	assert(Environment.newcclosure, "newcclosure is required to test")
+	local TestFunction = function()
+		return 10
+	end
+	local TestC = Global.newcclosure(TestFunction)
+	assert(Global.isexecutorclosure(TestFunction) == true, "Did not return true for an executor function")
+	assert(Global.isexecutorclosure(Global.newcclosure) == true, "Did not return true for an executor global")
+	assert(Global.isexecutorclosure(warn) == false, "Did not return false for a Roblox global")
+	assert(Global.isexecutorclosure(TestC) == true, "Did not return true for an executor C function")
+end)
+
+RunTest("getnamecallmethod", function()
+	pcall(function()
+		game:ExampleNamecall()
+	end)
+	assert(typeof(Global.getnamecallmethod()) == "string", "Did not return a string")
+	assert(Global.getnamecallmethod() == "ExampleNamecall", "Did not return the correct method")
+end)
+
+RunTest("hookmetamethod", function()
+	assert(Environment.getnamecallmethod, "getnamecallmethod is required to test")
+	assert(Environment.newcclosure, "newcclosure is required to test")
+	local TestTable = setmetatable({}, {
+		__index = Global.newcclosure(function()
+			return "normal"
+		end),
+	})
+	Global.hookmetamethod(TestTable, "__index", Global.newcclosure(function()
+		return "hooked"
+	end))
+	assert(TestTable.Example == "hooked", "Failed to hook a metamethod")
+end)
+
+RunTest("getrawmetatable", function()
+	local TestTable = { __metatable = "Locked!" }
+	local TestObject = setmetatable({}, TestTable)
+	assert(Global.getrawmetatable(TestObject) == TestTable, "Did not return the metatable")
+end)
+
+RunTest("setrawmetatable", function()
+	assert(Environment.getrawmetatable, "getrawmetatable is required to test")
+	local TestTable = { __metatable = "Locked!" }
+	local TestObject = setmetatable({}, TestTable)
+	Global.setrawmetatable(TestObject, {
+		__index = function()
+			return "Edited!"
+		end,
+	})
+	assert(TestObject.Example == "Edited!", "Failed to set the metatable")
+end)
+
+RunTest("isreadonly", function()
+	local TestTable = {}
+	local FrozenTable = table.freeze({})
+	assert(Global.isreadonly(TestTable) == false, "Did not return false for a writeable table")
+	assert(Global.isreadonly(FrozenTable) == true, "Did not return true for a readonly table")
+end)
+
+RunTest("setreadonly", function()
+	assert(Environment.isreadonly, "isreadonly is required to test")
+	local TestTable = { Value = 10 }
+	table.freeze(TestTable)
+	Global.setreadonly(TestTable, false)
+	TestTable.Value = 100
+	assert(Global.isreadonly(TestTable) == false, "Failed to set readonly")
+end)
+
+RunTest("Drawing.new", function()
+	assert(typeof(Global.Drawing.new) == "function", "Drawing.new is not a function")
+	local NewShape = Global.Drawing.new("Circle")
+	NewShape.Visible = false
+	NewShape.Radius = 10
+	NewShape.Thickness = 1
+	NewShape.Filled = false
+	NewShape.NumSides = 10
+	NewShape:Remove()
+end, "Drawing_New")
+
+RunTest("Drawing.Fonts", function()
+	assert(typeof(Global.Drawing.Fonts) == "table", "Drawing.Fonts is not a table")
+end, "Drawing_Fonts")
+
+RunTest("writefile", function()
+	Global.writefile("ZyroHub_Test_File", "example")
+	assert(Global.isfile("ZyroHub_Test_File") == true, "Failed to create a file")
+	assert(Global.readfile("ZyroHub_Test_File") == "example", "File does not contain expected data")
+end)
+
+RunTest("isfile", function()
+	assert(Global.isfile("ZyroHub_Test_File") == true, "Did not return true for a valid file")
+end)
+
+RunTest("readfile", function()
+	assert(Global.readfile("ZyroHub_Test_File") == "example", "Did not return the expected data")
+end)
+
+RunTest("appendfile", function()
+	Global.appendfile("ZyroHub_Test_File", "_appended")
+	assert(Global.readfile("ZyroHub_Test_File") == "example_appended", "Failed to append content to a file")
+end)
+
+RunTest("loadfile", function()
+	Global.writefile("ZyroHub_Test_Load", [[return 25]])
+	assert(Global.loadfile("ZyroHub_Test_Load")() == 25, "Failed to load and execute a file")
+end)
+
+RunTest("delfile", function()
+	Global.delfile("ZyroHub_Test_File")
+	Global.delfile("ZyroHub_Test_Load")
+	assert(Global.isfile("ZyroHub_Test_File") == false, "Failed to delete a file")
+end)
+
+RunTest("makefolder", function()
+	Global.makefolder("ZyroHub_Test_Folder")
+	assert(Global.isfolder("ZyroHub_Test_Folder") == true, "Failed to create a folder")
+end)
+
+RunTest("delfolder", function()
+	Global.delfolder("ZyroHub_Test_Folder")
+	assert(Global.isfolder("ZyroHub_Test_Folder") == false, "Failed to delete a folder")
+end)
+
+RunTest("listfiles", function()
+	Global.makefolder("ZyroHub_ListFiles_Test")
+	Global.writefile("ZyroHub_ListFiles_Test/Test1", "test 1")
+	Global.writefile("ZyroHub_ListFiles_Test/Test2", "test 2")
+	local FilesList = Global.listfiles("ZyroHub_ListFiles_Test")
+	local Found1 = false
+	local Found2 = false
+	assert(#FilesList == 2, "Did not return the correct number of files")
+	for _, File in ipairs(FilesList) do
+		local Content = Global.readfile(File)
+		if Content == "test 1" then
+			Found1 = true
+		elseif Content == "test 2" then
+			Found2 = true
+		end
+	end
+	Global.delfolder("ZyroHub_ListFiles_Test")
+	assert(Found1 == true, "Did not return the first file")
+	assert(Found2 == true, "Did not return the second file")
+end)
+
+RunTest("getcustomasset", function()
+	assert(Environment.writefile, "writefile is required to test")
+	local Content = game:HttpGet(getgenv().ZyroHub.BaseUrl .. "Assets/Check.png")
+	Global.writefile("ZyroHub_Test_Image", Content)
+	local Asset = Global.getcustomasset("ZyroHub_Test_Image")
+	local TestImage = Instance.new("ImageLabel", Services.CoreGui.RobloxGui)
+	TestImage.Image = Asset
+	local Tries = 0
+	while not TestImage.IsLoaded and Tries < 10 do
+		Tries = Tries + 1
+		task.wait(0.1)
+	end
+	local IsLoaded = TestImage.IsLoaded
+	TestImage:Destroy()
+	Global.delfile("ZyroHub_Test_Image")
+	assert(string.find(Asset, "rbxasset://"), "Should return an rbxasset id")
+	assert(IsLoaded == true, "Failed to load a PNG image")
+end)
+
+RunTest("gethiddenproperty", function()
+	local TestPart = Instance.new("Part")
+	local Value = Global.gethiddenproperty(TestPart, "NetworkIsSleeping")
+	TestPart:Destroy()
+	assert(Value == false, "Did not return the correct property value")
+end)
+
+RunTest("sethiddenproperty", function()
+	assert(Environment.gethiddenproperty, "gethiddenproperty is required to test")
+	local TestPart = Instance.new("Part")
+	Global.sethiddenproperty(TestPart, "NetworkIsSleeping", true)
+	local Value = Global.gethiddenproperty(TestPart, "NetworkIsSleeping")
+	TestPart:Destroy()
+	assert(Value == true, "Failed to set a hidden property")
+end)
+
+-- Guarantee: leftover test artifacts from failed assertions are always
+-- removed, even when an earlier test crashed halfway through its cleanup.
+RunTest("test_artifact_cleanup", function()
+	local Paths = {
+		"ZyroHub_Test_File",
+		"ZyroHub_Test_Load",
+		"ZyroHub_Test_Image",
+		"ZyroHub_Test_Folder",
+		"ZyroHub_ListFiles_Test"
+	}
+	for _, Path in Paths do
+		pcall(function()
+			if Global.isfile and Global.isfile(Path) then
+				if Global.delfile then Global.delfile(Path) end
+			elseif Global.isfolder and Global.isfolder(Path) then
+				if Global.delfolder then Global.delfolder(Path) end
+			end
+		end)
+	end
+end)
+
+RunTest("getthreadidentity", function()
+	local Identity = Global.getthreadidentity()
+	assert(typeof(Identity) == "number", "Did not return a number")
+	assert(Identity > 0, "Returned an invalid identity")
+	assert(Identity < 9, "Returned an invalid identity")
+end)
+
+RunTest("setthreadidentity", function()
+	assert(Environment.getthreadidentity, "getthreadidentity is needed to test")
+	local Old = Global.getthreadidentity()
+	Global.setthreadidentity(2)
+	assert(Services.CoreGui == nil, "Capabilities do not match set identity")
+	Global.setthreadidentity(Old)
+end)
+
+RunTest("isnetworkowner", function()
+	local Test = Instance.new("Part", Services.Workspace)
+	local RootPart = Services.Players.LocalPlayer.Character.HumanoidRootPart
+	local TestPart
+
+	for _, Part in ipairs(Services.Workspace:GetDescendants()) do
+		if Part:IsA("BasePart") and Part.Anchored then
+			TestPart = Part
+			break
+		end
+	end
+
+	RootPart.Anchored = true
+	local IsOwned = Global.isnetworkowner(RootPart)
+	RootPart.Anchored = false
+
+	local IsClientOwned = Global.isnetworkowner(Test)
+	local IsNotOwned = TestPart and Global.isnetworkowner(TestPart)
+	Test:Destroy()
+
+	assert(TestPart ~= nil, "Skipped, no anchored part to test with")
+	assert(IsClientOwned == true, "Did not return true for a client owned part")
+	assert(IsNotOwned == false, "Did not return false for a non client owned part")
+	assert(IsOwned == true, "Did not return true for a client owned anchored part")
+end)
+
+RunTest("firesignal", function()
+	local TestEvent = Instance.new("RemoteEvent")
+	local Fired = false
+	local Value1, Value2, Value3
+	local Connection = TestEvent.OnClientEvent:Connect(function(Arg1, Arg2, Arg3)
+		Fired = true
+		Value1 = Arg1
+		Value2 = Arg2
+		Value3 = Arg3
+	end)
+	Global.firesignal(TestEvent.OnClientEvent, "Example", 10, true)
+	local Tries = 0
+	while not Fired and Tries < 10 do
+		Tries = Tries + 1
+		task.wait(0.1)
+	end
+	Connection:Disconnect()
+	TestEvent:Destroy()
+	assert(Fired == true, "Failed to fire a signal")
+	assert(Value1 == "Example", "Fired signal with incorrect data")
+	assert(Value2 == 10, "Fired signal with incorrect data")
+	assert(Value3 == true, "Fired signal with incorrect data")
+end)
+
+RunTest("replicatesignal", function()
+	local TestButton = Instance.new("Frame")
+	Global.replicatesignal(TestButton.MouseWheelForward, 69, 420)
+	local Success = pcall(function()
+		Global.replicatesignal(TestButton.MouseWheelForward)
+		Global.replicatesignal(TestButton.MouseWheelForward, 69)
+	end)
+	TestButton:Destroy()
+	assert(Success == false, "Did not throw an error with invalid arguments")
+end)
+
+RunTest("getconnections", function()
+	local Fired = false
+	local Connection = game.ChildAdded:Connect(function(Child)
+		if Child == "Example" then
+			Fired = true
+		end
+	end)
+	for _, Conn in ipairs(getconnections(game.ChildAdded)) do
+		Conn:Fire("Example")
+	end
+	local Tries = 0
+	while not Fired and Tries < 10 do
+		Tries = Tries + 1
+		task.wait(0.1)
+	end
+	Connection:Disconnect()
+	assert(Fired == true, "Failed to fire a connection's signals")
+end)
+
+RunTest("require", function()
+	local TestScript = Global.require(Services.Players.LocalPlayer.PlayerScripts.PlayerModule)
+	assert(typeof(TestScript) == "table", "Did not return a table")
+	assert(typeof(TestScript.GetControls) == "function", "Did not return the expected data")
+	local Original = TestScript.GetControls
+	TestScript.GetControls = function()
+		return "test"
+	end
+	assert(TestScript.GetControls() == "test", "Unable to change module values")
+	TestScript.GetControls = Original
+	TestScript = nil
+end)
+
+return Environment

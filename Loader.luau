@@ -1,37 +1,175 @@
--- ZyroHub encrypted module (Loader.luau) - built 2026-09-07 20:27 UTC
--- Readable source lives in src/ (never published). Edit src/, then run Scripts/build.ps1.
-local PAYLOAD = "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"
-local KEY = "ZyroHub-Enc-v1-7Kq2mX9pR4tW8yB3nF6jH1cV5sL0dG2aZ9eQ4uI7oP3rT6wY"
-local SIZE = 5714
-local function Decrypt(Payload, Key, Size)
-	local Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-	local Reverse = {}
-	for Index = 1, 64 do
-		Reverse[Alphabet:sub(Index, Index)] = string.char(Index - 1)
-	end
-	local Mapped = ((Payload:gsub(".", Reverse)):gsub("=", "\0"))
-	local Bytes = {}
-	local Pos = 0
-	for Group = 1, #Mapped, 4 do
-		local A, B, C, D = Mapped:byte(Group, Group + 3)
-		local N = A * 262144 + B * 4096 + C * 64 + D
-		Pos = Pos + 1
-		Bytes[Pos] = math.floor(N / 65536) % 256
-		Pos = Pos + 1
-		Bytes[Pos] = math.floor(N / 256) % 256
-		Pos = Pos + 1
-		Bytes[Pos] = N % 256
-	end
-	local KeyLength = #Key
-	local Chars = {}
-	for Index = 1, Size do
-		Chars[Index] = string.char((Bytes[Index] - Key:byte(((Index - 1) % KeyLength) + 1) - (Index % 256)) % 256)
-	end
-	return table.concat(Chars)
+--[[
+
+    ZyroHub bootstrap.
+
+    Responsibilities:
+      - Single source of truth for the global `ZyroHub` table.
+      - Versioned, crash-tolerant UserData persistence (schema v2).
+      - Bootstrap loading of components with cache fallback (see Net.luau
+        for the full pinned/cached loader used for external dependencies).
+
+]]
+
+if getgenv().ZyroHub and getgenv().ZyroHub.Environment and getgenv().ZyroHub.Interface then
+    return
 end
-local Source = Decrypt(PAYLOAD, KEY, SIZE)
-local Fn, Err = loadstring(Source, "Loader.luau")
-if not Fn then
-	error("[ZyroHub] encrypted module failed to compile: " .. tostring(Err))
+
+local VERSION = "2.0.0"
+
+getgenv().ZyroHub = {
+    Version = VERSION,
+    BaseUrl = "https://raw.githubusercontent.com/zyro1903/ZyroHubDoors/refs/heads/main/",
+    Config = {
+        TouchControls = "Auto",
+    },
+}
+
+local GameList = {
+    [2440500124] = "Doors"
+}
+
+local function CloneReference(Object)
+    local State = rawget(getgenv(), "ZyroHub")
+    if State and State.Environment and State.Environment.cloneref then
+        return State.Environment.cloneref(Object)
+    end
+    return Object
 end
-return Fn()
+
+local function GetService(Name)
+    local ok, Service = pcall(game.GetService, game, Name)
+    if not ok then
+        return nil
+    end
+    return CloneReference(Service)
+end
+
+-- Bootstrap loader: mirrors Net.luau but exists before Net itself is loaded.
+-- Adds cache fallback so a network failure no longer bricks the hub.
+local function RawLoad(Path)
+    local Url = ZyroHub.BaseUrl .. Path
+    local CacheKey = Path:gsub("[^%w%-_%.]", "_")
+    local CachePath = "ZyroHubCache/" .. CacheKey .. ".lua"
+
+    local Source
+    local ok, Result = pcall(function()
+        return game:HttpGet(Url)
+    end)
+
+    if ok and type(Result) == "string" and #Result > 32 and Result:sub(1, 1) ~= "<" then
+        Source = Result
+        local Root = getgenv()
+        pcall(function()
+            if Root.makefolder and Root.isfolder and not Root.isfolder("ZyroHubCache") then
+                Root.makefolder("ZyroHubCache")
+            end
+            if Root.writefile then
+                Root.writefile(CachePath, Source)
+            end
+        end)
+    else
+        -- Offline fallback: last successful mirror of this component.
+        local Root = getgenv()
+        local Env = ZyroHub.Environment or Root
+        if Env and Env.readfile and Env.isfile then
+            local okHas, Has = pcall(function()
+                return Env.isfile(CachePath)
+            end)
+            if okHas and Has then
+                local okRead, Data = pcall(function()
+                    return Env.readfile(CachePath)
+                end)
+                if okRead and type(Data) == "string" and #Data > 32 then
+                    Source = Data
+                end
+            end
+        end
+    end
+
+    assert(Source, "[ZyroHub] Failed to download (and no cached copy of): " .. Path)
+
+    local Fn, Err = loadstring(Source, Path)
+    assert(Fn, "[ZyroHub] Compile error in " .. Path .. ": " .. tostring(Err))
+
+    return Fn()
+end
+
+ZyroHub.Localization = RawLoad("Components/Localization.luau")
+ZyroHub.Environment = RawLoad("Components/Environment.luau")
+ZyroHub.ESPLibrary = RawLoad("Components/ESP.luau")
+ZyroHub.Net = RawLoad("Components/Net.luau")
+ZyroHub.Platform = RawLoad("Components/Mobile.luau")
+
+-- ---------------------------------------------------------------------------
+-- UserData (schema v2): corrupt files reset to defaults instead of crashing,
+-- values are type-coerced, and the schema is forward-migratable.
+-- ---------------------------------------------------------------------------
+local function LoadUserData()
+    local Env = ZyroHub.Environment
+    local Defaults = {
+        SchemaVersion = 2,
+        TotalExecutions = 0,
+        Language = "English",
+        TouchControls = "Auto",
+    }
+
+    if not (Env and Env.writefile and Env.readfile and Env.isfile) then
+        return table.clone(Defaults)
+    end
+
+    -- Ensure the storage folder exists before first write.
+    pcall(function()
+        if Env.isfolder and Env.makefolder and not Env.isfolder("ZyroHub") then
+            Env.makefolder("ZyroHub")
+        end
+    end)
+
+    local Data = table.clone(Defaults)
+    local ok = pcall(function()
+        if Env.isfile("ZyroHub/UserData.json") then
+            local Decoded = GetService("HttpService"):JSONDecode(Env.readfile("ZyroHub/UserData.json"))
+            if type(Decoded) == "table" then
+                for Key, Value in Decoded do
+                    Data[Key] = Value
+                end
+            end
+        end
+    end)
+    if not ok then
+        -- Corrupted JSON: start clean rather than refusing to load.
+        Data = table.clone(Defaults)
+    end
+
+    -- Coercion / migration.
+    if type(Data.TotalExecutions) ~= "number" then
+        Data.TotalExecutions = 0
+    end
+    if Data.Language ~= "Turkish" and Data.Language ~= "English" then
+        Data.Language = "English"
+    end
+    if Data.TouchControls ~= "Auto" and Data.TouchControls ~= "Enabled" and Data.TouchControls ~= "Disabled" then
+        Data.TouchControls = "Auto"
+    end
+    Data.SchemaVersion = 2
+    Data.TotalExecutions += 1
+
+    pcall(function()
+        Env.writefile("ZyroHub/UserData.json", GetService("HttpService"):JSONEncode(Data))
+    end)
+
+    return Data
+end
+
+local UserData = LoadUserData()
+ZyroHub.TotalExecutions = UserData.TotalExecutions
+ZyroHub.Language = UserData.Language
+ZyroHub.Config.TouchControls = UserData.TouchControls
+
+ZyroHub.Interface = RawLoad("Components/Interface.luau")
+
+local CurrentGame = GameList[game.GameId]
+if CurrentGame then
+    RawLoad("Games/" .. CurrentGame .. "/Loader.luau")
+else
+    RawLoad("Games/Universal/Loader.luau")
+end
