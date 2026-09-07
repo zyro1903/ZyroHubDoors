@@ -1,5 +1,15 @@
 --[[
-	ZyroHub :: DeathFarm v2 - built for unattended overnight runs.
+	ZyroHub :: DeathFarm v3 (Tank) - built for unattended overnight runs.
+
+	Tank mode: every step has a fallback technique.
+	  - Instance names are matched through candidate lists, so game updates
+		that rename entities (KeyObtain -> KeyPickup, Lock -> DoorLock, ...)
+		cannot break the cycle.
+	  - Joining falls back across destinations (Hotel -> Mines -> Backdoor).
+	  - Dying escalates through three techniques (replicatesignal ->
+		Underwater remote -> lobby escape) before the supervisor resets.
+	  - Walking is optional: prompts are fired from any distance, so a stuck
+		path can never stall the farm.
 
 	v1 problems fixed:
 	  - Any hiccup ("Key prompt never became usable") was a hard return that
@@ -37,6 +47,10 @@ local CONFIG = {
 	MaxConsecutiveErrors = 5, -- errors before an automatic hard reset
 	MuteGame = false, -- true = silence every sound (overnight comfort)
 	SendCaptions = true, -- in-game caption log lines
+	-- Tank mode: every step has a fallback technique. If a spawn name
+	-- changes in a game update, or a join target refuses us, the farm
+	-- quietly switches to the next option instead of dying out.
+	Destinations = { "Hotel", "Mines", "Backdoor" }, -- join fallback order
 }
 
 local StartedAt = os.clock()
@@ -215,6 +229,27 @@ local function WaitForDescendantBounded(Parent, Name, TimeoutSeconds)
 		end)
 		if ok and Object then
 			return Object
+		end
+		task.wait(0.2)
+	end
+	return nil
+end
+
+-- Tank-mode: tries several candidate instance names (game updates rename
+-- things) and returns the first one that exists before the deadline.
+local function FindFirstNamed(Parent, Names, TimeoutSeconds)
+	if typeof(Parent) ~= "Instance" or not Names then
+		return nil
+	end
+	local Deadline = os.clock() + (TimeoutSeconds or 20)
+	while os.clock() < Deadline do
+		for _, Name in ipairs(Names) do
+			local ok, Object = pcall(function()
+				return Parent:FindFirstChild(Name, true)
+			end)
+			if ok and Object then
+				return Object
+			end
 		end
 		task.wait(0.2)
 	end
@@ -411,23 +446,33 @@ local function JoinRun()
 		return
 	end
 	LastJoinAttempt = os.clock()
-	QueueSelf()
-	Caption("Joining a solo " .. CONFIG.Destination .. " run...")
-	FireRemote(GetRemotes(), "CreateElevator", {
-		Mods = {},
-		Settings = {},
-		Destination = CONFIG.Destination,
-		FriendsOnly = false,
-		MaxPlayers = CONFIG.MaxPlayers,
-	})
-	local Deadline = os.clock() + 60
-	while os.clock() < Deadline do
-		if game.PlaceId ~= LOBBY_PLACE then
-			return
+	local Destinations = (CONFIG.Destinations and #CONFIG.Destinations > 0) and CONFIG.Destinations or { CONFIG.Destination }
+	for Index, Destination in ipairs(Destinations) do
+		QueueSelf()
+		Caption("Joining a solo " .. tostring(Destination) .. " run (option " .. Index .. "/" .. #Destinations .. ")...")
+		FireRemote(GetRemotes(), "CreateElevator", {
+			Mods = {},
+			Settings = {},
+			Destination = Destination,
+			FriendsOnly = false,
+			MaxPlayers = CONFIG.MaxPlayers,
+		})
+		local Deadline = os.clock() + 45
+		while os.clock() < Deadline do
+			if game.PlaceId ~= LOBBY_PLACE then
+				CONFIG.Destination = Destination -- remember what worked
+				return
+			end
+			task.wait(0.5)
 		end
-		task.wait(0.5)
+		Caption("Join did not complete with " .. tostring(Destination) .. ", trying the next option...")
 	end
-	Caption("Join did not complete, retrying...")
+	QueueSelf()
+	Caption("All join options failed, re-entering the lobby...")
+	pcall(function()
+		Services.TeleportService:Teleport(LOBBY_PLACE)
+	end)
+	task.wait(20)
 end
 
 local function LeaveToLobby()
@@ -462,33 +507,58 @@ local function PlayAgain()
 	LeaveToLobby()
 end
 
-local function DieNow()
-	local ok = false
-	if typeof(replicatesignal) == "function" then
-		ok = pcall(function()
+-- Tank-mode death: three techniques, tried in order. Criteria for success
+-- is only "the remote did not throw": whether the player actually dies is
+-- checked afterwards in WaitDeath, which escalates to the next technique.
+local KillMethods = {
+	{ Name = "replicatesignal", Func = function()
+		if typeof(replicatesignal) ~= "function" then
+			return false
+		end
+		pcall(function()
 			replicatesignal(LocalPlayer.Kill)
 		end)
+		return true
+	end },
+	{ Name = "underwater-remote", Func = function()
+		local Remotes = GetRemotes()
+		local Underwater = Remotes and Remotes:FindFirstChild("Underwater")
+		if not Underwater then
+			return false
+		end
+		pcall(function()
+			Underwater:FireServer(true)
+		end)
+		return true
+	end },
+	{ Name = "lobby-escape", Func = function()
+		-- Last resort: leave to the lobby; next DispatchOnce opens a fresh
+		-- run (and whatever killed us is gone with the old server).
+		FireRemote(GetRemotes(), "Lobby")
+		return true
+	end },
+}
+
+local function DieNow(TechniqueIndex)
+	local Method = KillMethods[TechniqueIndex or 1]
+	if Method then
+		return pcall(Method.Func)
 	end
-	if not ok then
-		FireRemote(GetRemotes(), "Underwater", true)
-	end
+	return false
 end
 
 local function WaitDeath()
-	local Deadline = os.clock() + CONFIG.DeathWaitTimeout
-	while os.clock() < Deadline do
-		if not IsAlive() then
-			return true
+	for Cycle = 1, #KillMethods do
+		local Method = KillMethods[Cycle]
+		Caption("Dying (technique " .. Cycle .. "/" .. #KillMethods .. ": " .. Method.Name .. ")...")
+		DieNow(Cycle)
+		local Deadline = os.clock() + (Cycle == #KillMethods and 60 or CONFIG.DeathWaitTimeout)
+		while os.clock() < Deadline do
+			if not IsAlive() then
+				return true
+			end
+			task.wait(0.25)
 		end
-		task.wait(0.25)
-	end
-	DieNow()
-	Deadline = os.clock() + 45
-	while os.clock() < Deadline do
-		if not IsAlive() then
-			return true
-		end
-		task.wait(0.25)
 	end
 	return false
 end
@@ -504,13 +574,13 @@ local function PrepareRun()
 		end
 	end)
 	pcall(function()
-		local SkipPrompt = Workspace:FindFirstChild("SkipPrompt", true)
+		local SkipPrompt = FindFirstNamed(Workspace, { "SkipPrompt", "SkipPromptButton" }, 8)
 		if SkipPrompt and typeof(fireproximityprompt) == "function" then
 			fireproximityprompt(SkipPrompt)
 		end
 	end)
 	pcall(function()
-		local LuggageCart = Workspace:FindFirstChild("Luggage_Cart_Crouch", true)
+		local LuggageCart = FindFirstNamed(Workspace, { "Luggage_Cart_Crouch", "LuggageCart" }, 8)
 		if LuggageCart then
 			LuggageCart:Destroy()
 		end
@@ -553,8 +623,8 @@ local function RunDeathCycle()
 	end
 	DisablePlant(RoomZero)
 
-	local Door = WaitForChildBounded(RoomZero, "Door", 45)
-	local Lock = Door and WaitForChildBounded(Door, "Lock", 30)
+	local Door = FindFirstNamed(RoomZero, { "Door", "RoomDoor" }, 45)
+	local Lock = Door and FindFirstNamed(Door, { "Lock", "DoorLock", "Padlock" }, 30)
 	if Lock then
 		pcall(function()
 			Lock.CanCollide = false
@@ -562,52 +632,64 @@ local function RunDeathCycle()
 	end
 	PrepareRun()
 
-	local KeyObtain = WaitForDescendantBounded(RoomZero, "KeyObtain", CONFIG.KeyWaitTimeout)
+	local KeyObtain = FindFirstNamed(RoomZero, { "KeyObtain", "KeyPickup", "Key" }, CONFIG.KeyWaitTimeout)
+	local KeyPrompt
 	if KeyObtain then
-		local KeyHitbox = WaitForChildBounded(KeyObtain, "Hitbox", 20)
-		if KeyHitbox then
+		local KeyHitbox = FindFirstNamed(KeyObtain, { "Hitbox" }, 20)
+		KeyPrompt = FindFirstNamed(KeyObtain, { "ModulePrompt" }, 12)
+		if not KeyPrompt then
+			-- the key prompt may live directly on the key tool, not the
+			-- spawn container; look around the whole starting room too
+			KeyPrompt = FindFirstNamed(RoomZero, { "ModulePrompt" }, 8)
+		end
+		if KeyHitbox and not KeyPrompt then
 			WalkTo(KeyHitbox.Position)
 		end
-		if WaitForItemBounded("Key", 2) then
-			Caption("Key already held.")
+	end
+	if not KeyPrompt then
+		KeyPrompt = FindFirstNamed(RoomZero, { "ModulePrompt" }, 10)
+	end
+	if KeyPrompt then
+		if RetryPrompt(KeyPrompt, "Key", CONFIG.PromptRetryTimeout) then
+			Caption("Key secured.")
 		else
-			local KeyPrompt = WaitForDescendantBounded(KeyObtain, "ModulePrompt", 15)
-			if RetryPrompt(KeyPrompt, "Key", CONFIG.PromptRetryTimeout) then
-				Caption("Key secured.")
-			else
-				Caption("Key prompt refused, dying anyway...")
-			end
+			Caption("Key prompt refused, dying anyway...")
 		end
 	else
 		-- rejoin landed mid-run past the key: a plain death still farms
 		Caption("Key entity missing, dying in place...")
 	end
 
-	local function RoomTwoExists()
-		local ok, Value = pcall(function()
-			return CurrentRooms:FindFirstChild("2") ~= nil
+	local function RoomAdvanced(Rooms)
+		local ok, Count = pcall(function()
+			return #Rooms:GetChildren() >= 2
 		end)
-		return ok and Value
+		return ok and Count
 	end
 
-	local UnlockOk = RoomTwoExists()
+	local UnlockOk = RoomAdvanced(CurrentRooms)
 	if not UnlockOk then
 		if Lock then
 			WalkTo(Lock.Position)
 		end
-		local UnlockPrompt = Door and WaitForDescendantBounded(Door, "UnlockPrompt", CONFIG.UnlockWaitTimeout)
+		local UnlockPrompt = FindFirstNamed(Door or RoomZero, { "UnlockPrompt", "Unlock" }, CONFIG.UnlockWaitTimeout)
 		if UnlockPrompt then
 			UnlockOk = RetryPrompt(UnlockPrompt, nil, CONFIG.PromptRetryTimeout)
 		end
 	end
 	if UnlockOk then
-		-- opened doors raise the knob payout: give the room time to stream
-		WaitForDescendantBounded(CurrentRooms, "2", CONFIG.RoomWaitTimeout)
+		-- opened doors raise the knob payout: give the rooms time to stream
+		local Deadline = os.clock() + CONFIG.RoomWaitTimeout
+		while os.clock() < Deadline do
+			if RoomAdvanced(CurrentRooms) then
+				break
+			end
+			task.wait(0.5)
+		end
 	end
 
 	DeathCount += 1
 	Caption("Dying on purpose (death #" .. DeathCount .. ")...")
-	DieNow()
 	if WaitDeath() then
 		Caption("Death registered, restarting the run...")
 		if StopPending() then
@@ -615,7 +697,7 @@ local function RunDeathCycle()
 		end
 		PlayAgain()
 	else
-		Caption("Death never registered, hard resetting...")
+		Caption("No death technique worked, hard resetting...")
 		LeaveToLobby()
 	end
 end
