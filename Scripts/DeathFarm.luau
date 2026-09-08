@@ -29,7 +29,63 @@
 	Credits: Zyro - https://github.com/zyro1903/ZyroHubDoors
 ]]
 
-while not game:IsLoaded() do
+-- STARTUP VISIBILITY -----------------------------------------------------
+-- v3 fix: the old startup waits were silent and unbounded - if the executor
+-- ran this script before the Roblox place finished loading, the very first
+-- statement (`while not game:IsLoaded()`) spun forever with zero console
+-- output and the farm looked dead. Every startup wait is now fronted by a
+-- banner and bounded by STARTUP_TIMEOUT so a stuck start is always visible.
+local STARTUP_TIMEOUT = 30 -- seconds before a startup wait gives up loudly
+
+local function StartupBanner()
+	local Place = "unknown"
+	pcall(function()
+		if game and game.PlaceId then
+			Place = tostring(game.PlaceId)
+		end
+	end)
+	local Executor = "unknown"
+	for _, Probe in { "getexecutor", "executorname", "executor_name", "getexecutorname" } do
+		local ok, Value = pcall(function() return _G[Probe] end)
+		if ok and Value then
+			if type(Value) == "function" then
+				local Ok, Out = pcall(Value)
+				if Ok and Out and type(Out) ~= "table" then
+					Executor = tostring(Out)
+					break
+				end
+			else
+				Executor = tostring(Value)
+				break
+			end
+		end
+	end
+	local okLoad, IsLoaded = pcall(function() return game:IsLoaded() end)
+	print(("[ZyroHub] [DeathFarm] v3 startup banner - executor: %s - place: %s - game loaded: %s"):format(
+		Executor, Place, (okLoad and IsLoaded) and "yes" or "no"))
+end
+
+StartupBanner()
+
+local function GameLoaded()
+	local ok, Loaded = pcall(function() return game:IsLoaded() end)
+	return ok and Loaded or false
+end
+
+local StartupStart = os.clock()
+local StartupDeadline = StartupStart + STARTUP_TIMEOUT
+local LastStartupNotice = StartupStart
+while not GameLoaded() do
+	if os.clock() > StartupDeadline then
+		warn("[ZyroHub] [DeathFarm] STARTUP TIMEOUT: the game never finished loading (" ..
+			STARTUP_TIMEOUT .. "s). The farm stops loudly instead of hanging - re-run this script " ..
+			"once the place has loaded, or start the executor after Roblox has finished loading the experience.")
+		return
+	end
+	if os.clock() - LastStartupNotice >= 5 then
+		LastStartupNotice = os.clock()
+		print(("[ZyroHub] [DeathFarm] still waiting for the game to load (%ds elapsed)..."):format(math.floor(os.clock() - StartupStart)))
+	end
 	task.wait(1)
 end
 
@@ -102,8 +158,23 @@ local Services = setmetatable({}, {
 local Players = Services.Players
 local Workspace = Services.Workspace
 
+-- The farm's hands: every cycle pokes LocalPlayer, so it cannot run without
+-- one. Wait briefly for the Players service to expose it, but never silently:
+-- after STARTUP_TIMEOUT the farm stops with a loud warning instead of spinning.
 local LocalPlayer = Players.LocalPlayer
+local LocalPlayerStart = os.clock()
+local LocalPlayerDeadline = LocalPlayerStart + STARTUP_TIMEOUT
+local LastLocalPlayerNotice = LocalPlayerStart
 while not LocalPlayer do
+	if os.clock() > LocalPlayerDeadline then
+		warn("[ZyroHub] [DeathFarm] STARTUP TIMEOUT: Players.LocalPlayer was still missing after " ..
+			STARTUP_TIMEOUT .. "s. The farm cannot run without the local player - stop, join a game or lobby, and re-run.")
+		return
+	end
+	if os.clock() - LastLocalPlayerNotice >= 5 then
+		LastLocalPlayerNotice = os.clock()
+		print(("[ZyroHub] [DeathFarm] still waiting for LocalPlayer (%ds elapsed)..."):format(math.floor(os.clock() - LocalPlayerStart)))
+	end
 	task.wait(0.5)
 	LocalPlayer = Players.LocalPlayer
 end
@@ -763,8 +834,8 @@ if ExistingToken and os.clock() - ExistingToken < 5 then
 end
 getgenv()[TokenKey] = os.clock()
 
-Log("v2 supervisor online (destination: " .. CONFIG.Destination .. ", solo: " .. CONFIG.MaxPlayers .. ")")
-Caption("DeathFarm v2 online - unattended mode.")
+Log("v3 tank online (destination: " .. CONFIG.Destination .. ", solo: " .. CONFIG.MaxPlayers .. ")")
+Caption("DeathFarm v3 online - unattended mode.")
 
 while true do
 	if StopRequested() then
