@@ -4,6 +4,12 @@ return function(Window)
     end
 
     local LatestChangelog = {
+        "2026-09-21",
+        "<font color='rgb(0, 255, 0)'>+ Signature watermark: version, name, executor and live FPS (draggable)</font>",
+        "<font color='rgb(0, 255, 0)'>+ Position Spoof stair fix - no more floating or launching on stairs</font>",
+        "<font color='rgb(0, 255, 0)'>+ Manual Hip Height control (toggle + slider)</font>",
+        "<font color='rgb(0, 255, 0)'>+ Auto Rooms, Forget-Me-Not skipper, infinite Crucifix, camera FOV, Archives clock and anti-spawn toggles</font>",
+        "<font color='rgb(255, 255, 0)'>~ Footer now shows the running build version</font>",
         "2026-09-07",
         "<font color='rgb(0, 255, 0)'>+ DeathFarm v2: never-exit supervisor, anti-idle, auto-recovery</font>",
         "2026-09-06",

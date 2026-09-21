@@ -14,7 +14,7 @@ if getgenv().ZyroHub and getgenv().ZyroHub.Environment and getgenv().ZyroHub.Int
     return
 end
 
-local VERSION = "2.0.0"
+local VERSION = "2.1.0"
 
 getgenv().ZyroHub = {
     Version = VERSION,

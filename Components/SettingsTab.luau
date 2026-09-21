@@ -140,6 +140,21 @@ return function(Window)
 		end,
 	})
 
+	-- Our signature overlay. The module remembers the state, so this callback is
+	-- safe to fire before the watermark has been built.
+	MenuGroup:AddToggle("Watermark", {
+		Text = L("Watermark"),
+		Default = true,
+		Tooltip = L("WatermarkTooltip"),
+		Callback = function(Value)
+			local Watermark = ZyroHub.Interface and ZyroHub.Interface.Watermark
+			if Watermark and type(Watermark.SetEnabled) == "function" then
+				Watermark.SetEnabled(Value)
+			end
+			Library:Notify(L(Value and "WatermarkOn" or "WatermarkOff"))
+		end,
+	})
+
 	ConfigGroup:AddInput("ConfigShareCode", {
 		Text = L("ConfigCode"),
 		Default = "",

@@ -40,7 +40,7 @@ task.wait(1)
 
 local Window = Library:CreateWindow({
 	Title = L("ZYRO / FIELD OPS"),
-	Footer = "SIRLUAX | ZYRO CORE",
+	Footer = ("SIRLUAX | ZYRO CORE | v%s"):format(ZyroHub.Version),
     NotifySide = "Right",
     ShowCustomCursor = false,
     AutoShow = true,
@@ -63,6 +63,20 @@ local Window = Library:CreateWindow({
 })
 
 ZyroHub.Interface.ApplyInfoTab(Window)
+
+-- Signature overlay (version / user / live FPS). Optional by design.
+local Watermark = ZyroHub.Interface.Watermark
+if Watermark and type(Watermark.Init) == "function" then
+	local Ok, Err = pcall(Watermark.Init, Watermark, Library)
+	if not Ok then
+		warn("[ZyroHub] Watermark failed to start: " .. tostring(Err))
+	else
+		Library:OnUnload(function()
+			pcall(Watermark.Destroy, Watermark)
+		end)
+	end
+end
+
 local Tabs = {
 	General = Window:AddTab(L("Play"), "gamepad-2"),
 }

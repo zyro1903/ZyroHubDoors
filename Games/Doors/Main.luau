@@ -1086,7 +1086,7 @@ end
 
 local Window = Library:CreateWindow({
 	Title = L("Zyro Hub"),
-	Footer = "SIRLUAX | ZYRO CORE",
+	Footer = ("SIRLUAX | ZYRO CORE | v%s"):format(ZyroHub.Version),
 	NotifySide = "Right",
 	ShowCustomCursor = false,
 	AutoShow = true,
@@ -1109,6 +1109,20 @@ local Window = Library:CreateWindow({
 })
 
 ZyroHub.Interface.ApplyInfoTab(Window)
+
+-- Signature overlay (version / user / live FPS). Optional by design: if the
+-- component is unavailable the hub keeps working and the overlay is skipped.
+local Watermark = ZyroHub.Interface.Watermark
+if Watermark and type(Watermark.Init) == "function" then
+	local Ok, Err = pcall(Watermark.Init, Watermark, Library)
+	if not Ok then
+		warn("[ZyroHub] Watermark failed to start: " .. tostring(Err))
+	else
+		Library:OnUnload(function()
+			pcall(Watermark.Destroy, Watermark)
+		end)
+	end
+end
 
 local Tabs = {
 	General  = Window:AddTab(L("Control"), "sliders-horizontal"),
@@ -1182,6 +1196,161 @@ Groupboxes.General_Character:AddToggle("EnableCharacterSlide", {
 Groupboxes.General_Character:AddToggle("InfiniteJumps", {
 	Text = L("InfiniteJumps"), Default = false, Tooltip = L("Allows you to jump while in the air.")
 })
+
+-- Ported from the Abysall "HipHeight" addon: manual Humanoid.HipHeight control.
+-- The original value is remembered and restored when the toggle goes off.
+Groupboxes.General_Character:AddDivider()
+Groupboxes.General_Character:AddToggle("HipHeightToggle", {
+	Text = L("HipHeight"), Default = false, Tooltip = L("HipHeightTooltip")
+})
+Groupboxes.General_Character:AddSlider("HipHeightSlider", {
+	Text = L("HipHeightValue"), Min = 0, Max = 50, Default = 0, Rounding = 0, Compact = true
+})
+
+Globals.HipHeightOriginal = nil
+
+Functions.ApplyHipHeight = function()
+	local CurrentHumanoid = (Character and Character:FindFirstChildOfClass("Humanoid")) or Humanoid
+	if not CurrentHumanoid then
+		return
+	end
+
+	if Toggles.HipHeightToggle.Value then
+		if Globals.HipHeightOriginal == nil then
+			Globals.HipHeightOriginal = CurrentHumanoid.HipHeight
+		end
+		CurrentHumanoid.HipHeight = Options.HipHeightSlider.Value
+	elseif Globals.HipHeightOriginal ~= nil then
+		CurrentHumanoid.HipHeight = Globals.HipHeightOriginal
+		Globals.HipHeightOriginal = nil
+	end
+end
+
+Options.HipHeightSlider:OnChanged(function()
+	if Toggles.HipHeightToggle.Value then
+		Functions.ApplyHipHeight()
+	end
+end)
+
+Toggles.HipHeightToggle:OnChanged(function()
+	Functions.ApplyHipHeight()
+end)
+
+Connections.HipHeightCharacter = LocalPlayer.CharacterAdded:Connect(function()
+	task.wait(0.5)
+	Globals.HipHeightOriginal = nil
+	if Toggles.HipHeightToggle.Value then
+		Functions.ApplyHipHeight()
+	end
+end)
+
+Groupboxes.General_Character:AddToggle("AntiNoise", { Text = L("AntiNoise"), Default = false, Tooltip = L("AntiNoiseTooltip") })
+
+-- Ported from the old hub: the game derives footstep noise from Humanoid
+-- movement, so this bypasses the movement system and steps the root part
+-- directly. Unlike the original it never touches unrelated connections and it
+-- restores AutoRotate when switched off.
+local function GetPlayerControls()
+	local Ok, PlayerModule = pcall(function()
+		return ZyroHub.Environment.require(LocalPlayer.PlayerScripts.PlayerModule)
+	end)
+	if not Ok or not PlayerModule then
+		return nil
+	end
+
+	local OkControls, Controls = pcall(function()
+		return PlayerModule:GetControls()
+	end)
+
+	return OkControls and Controls or nil
+end
+
+Toggles.AntiNoise:OnChanged(function(Value)
+	if Connections.AntiNoise then
+		Connections.AntiNoise:Disconnect()
+		Connections.AntiNoise = nil
+	end
+
+	if not Value then
+		local CurrentHumanoid = Character and Character:FindFirstChildOfClass("Humanoid")
+		if CurrentHumanoid then
+			CurrentHumanoid.AutoRotate = true
+		end
+		return
+	end
+
+	Connections.AntiNoise = Services.RunService.PreSimulation:Connect(function(Delta)
+		if not Toggles.AntiNoise.Value or not LocalPlayer:GetAttribute("Alive") then
+			return
+		end
+
+		local CurrentCharacter = LocalPlayer.Character
+		if not CurrentCharacter then
+			return
+		end
+
+		local CurrentRoot = CurrentCharacter:FindFirstChild("HumanoidRootPart")
+		local CurrentHumanoid = CurrentCharacter:FindFirstChildOfClass("Humanoid")
+		local CurrentCamera = Services.Workspace.CurrentCamera
+
+		if not CurrentRoot or not CurrentHumanoid or not CurrentCamera then
+			return
+		end
+
+		if CurrentHumanoid.Health <= 0 or CurrentRoot.Anchored then
+			return
+		end
+
+		local State = CurrentHumanoid:GetState()
+		if State == Enum.HumanoidStateType.Dead
+			or State == Enum.HumanoidStateType.Ragdoll
+			or State == Enum.HumanoidStateType.Climbing
+			or State == Enum.HumanoidStateType.Swimming then
+			return
+		end
+
+		local Controls = Globals.AntiNoiseControls or GetPlayerControls()
+		if not Controls then
+			return
+		end
+		Globals.AntiNoiseControls = Controls
+
+		CurrentHumanoid.AutoRotate = false
+		CurrentHumanoid:Move(Vector3.zero, false)
+
+		local Input = Controls:GetMoveVector()
+		local Magnitude = Input.Magnitude
+
+		if Magnitude <= 0 then
+			CurrentRoot.AssemblyLinearVelocity = Vector3.zero
+			return
+		end
+
+		local CameraCFrame = CurrentCamera.CFrame
+		local Forward = Vector3.new(CameraCFrame.LookVector.X, 0, CameraCFrame.LookVector.Z)
+		local Right = Vector3.new(CameraCFrame.RightVector.X, 0, CameraCFrame.RightVector.Z)
+
+		if Forward.Magnitude < 0.001 or Right.Magnitude < 0.001 then
+			return
+		end
+
+		Forward = Forward.Unit
+		Right = Right.Unit
+
+		local Direction = (Right * Input.X) + (Forward * -Input.Z)
+		if Direction.Magnitude <= 0 then
+			return
+		end
+		Direction = Direction.Unit
+
+		local Speed = CurrentHumanoid.WalkSpeed * math.clamp(Magnitude, 0, 1)
+		local Step = math.clamp(Delta, 0, 1 / 30)
+
+		CurrentRoot.AssemblyLinearVelocity = Vector3.zero
+		CurrentRoot.CFrame = CurrentRoot.CFrame + (Direction * Speed * Step)
+		CurrentRoot.CFrame = CFrame.new(CurrentRoot.Position, CurrentRoot.Position + Direction)
+	end)
+end)
 
 local OldJump = false
 local OldSlide = false
@@ -1524,6 +1693,94 @@ Groupboxes.Exploits_BypassRight:AddDropdown("InfiniteItemsList", {
 	DisabledTooltip = Globals.IncompatibleMessage
 })
 
+-- Ported from the old hub: while an entity is inside its own "safe distance" the
+-- Crucifix is dropped and instantly picked back up. The original yielded inside
+-- the render step; this version debounces instead, so the frame thread is never
+-- held and the loop never storms the remote.
+Groupboxes.Exploits_BypassRight:AddToggle("InfCrucifix", {
+	Text = L("InfCrucifix"), Default = false, Tooltip = L("InfCrucifixTooltip"),
+	Disabled = not Functions.CheckCompatability({ "fireproximityprompt" }), DisabledTooltip = Globals.IncompatibleMessage
+})
+
+local InfCrucifixRanges = {
+	RushMoving = 54, AmbushMoving = 67, A60 = 70, A120 = 75,
+	GlitchRush = 120, GlitchAmbush = 155,
+}
+
+local InfCrucifixParams = RaycastParams.new()
+InfCrucifixParams.FilterType = Enum.RaycastFilterType.Exclude
+local InfCrucifixBusy = false
+
+Connections.InfCrucifix = Services.RunService.RenderStepped:Connect(function()
+	if not Toggles.InfCrucifix.Value or InfCrucifixBusy then
+		return
+	end
+
+	local CurrentCharacter = LocalPlayer.Character
+	if not CurrentCharacter then
+		return
+	end
+
+	local Collision = CurrentCharacter:FindFirstChild("CollisionPart")
+	if not Collision then
+		return
+	end
+
+	InfCrucifixParams.FilterDescendantsInstances = { CurrentCharacter }
+
+	for _, Entity in Services.Workspace:GetChildren() do
+		local MaxDistance = InfCrucifixRanges[Entity.Name]
+
+		if not MaxDistance or not Entity.PrimaryPart then
+			continue
+		end
+
+		if (Collision.Position - Entity.PrimaryPart.Position).Magnitude >= MaxDistance then
+			continue
+		end
+
+		Entity.PrimaryPart.CanCollide = true
+		Entity.PrimaryPart.CanQuery = true
+
+		local Result = Services.Workspace:Raycast(
+			Collision.Position,
+			Entity.PrimaryPart.Position - Collision.Position,
+			InfCrucifixParams
+		)
+
+		if not Result or not Result.Instance:IsDescendantOf(Entity) then
+			continue
+		end
+
+		local Crucifix = CurrentCharacter:FindFirstChildOfClass("Tool")
+		if not Crucifix or Crucifix.Name ~= "Crucifix" then
+			continue
+		end
+
+		InfCrucifixBusy = true
+		task.spawn(function()
+			pcall(function()
+				RemotesFolder.DropItem:FireServer(Crucifix)
+			end)
+
+			task.wait(0.54)
+
+			local Drops = Services.Workspace:FindFirstChild("Drops")
+			local Dropped = Drops and Drops:FindFirstChild("Crucifix")
+			local Prompt = Dropped and Dropped:FindFirstChildOfClass("ProximityPrompt")
+
+			if Prompt then
+				pcall(fireproximityprompt, Prompt)
+			end
+
+			task.wait(0.1)
+			InfCrucifixBusy = false
+		end)
+
+		break
+	end
+end)
+
 Groupboxes.Exploits_BypassRight:AddDivider()
 Groupboxes.Exploits_BypassRight:AddToggle("PositionSpoof", {
 	Text = L("Position Spoof"), Default = false,
@@ -1550,6 +1807,106 @@ Toggles.PositionSpoof:AddKeyPicker("PositionSpoof", {
 Toggles.CrouchSpoof:OnChanged(function(Value)
 	if RemotesFolder:FindFirstChild("Crouch") then
 		RemotesFolder.Crouch:FireServer(Value and true or Functions.IsCrouching(), true)
+	end
+end)
+
+-- Ported from the Abysall "skidzopositionspooffix" addon: a ground raycast
+-- assist that stops Position Spoof from floating or launching on stairs.
+Groupboxes.Exploits_BypassRight:AddToggle("PositionSpoofStairFix", {
+	Text = L("StairFix"), Default = true, Tooltip = L("StairFixTooltip")
+})
+
+local StairFixParams = RaycastParams.new()
+StairFixParams.FilterType = Enum.RaycastFilterType.Exclude
+StairFixParams.RespectCanCollide = true
+StairFixParams.IgnoreWater = true
+
+local StairFixFilter = {}
+
+Connections.StairFix = Services.RunService.RenderStepped:Connect(function()
+	local FixToggle = Toggles.PositionSpoofStairFix
+	local SpoofToggle = Toggles.PositionSpoof
+
+	if not FixToggle or not FixToggle.Value or not SpoofToggle or not SpoofToggle.Value then
+		return
+	end
+
+	local CurrentCharacter = LocalPlayer.Character
+	if not CurrentCharacter or not CurrentCharacter.Parent then
+		return
+	end
+
+	local CurrentHumanoid = CurrentCharacter:FindFirstChildOfClass("Humanoid")
+	local CurrentRoot = CurrentCharacter:FindFirstChild("HumanoidRootPart")
+
+	if not CurrentHumanoid or not CurrentRoot or CurrentHumanoid.Health <= 0 then
+		return
+	end
+
+	local State = CurrentHumanoid:GetState()
+
+	if State == Enum.HumanoidStateType.Jumping
+		or State == Enum.HumanoidStateType.Climbing
+		or State == Enum.HumanoidStateType.Swimming
+		or State == Enum.HumanoidStateType.Seated then
+		return
+	end
+
+	table.clear(StairFixFilter)
+	StairFixFilter[1] = CurrentCharacter
+
+	local Camera = Services.Workspace.CurrentCamera
+	if Camera then
+		local MinecartRig = Camera:FindFirstChild("MinecartRig")
+		if MinecartRig then
+			StairFixFilter[2] = MinecartRig
+		end
+	end
+
+	StairFixParams.FilterDescendantsInstances = StairFixFilter
+
+	local Velocity = CurrentRoot.AssemblyLinearVelocity
+	local Horizontal = Vector3.new(Velocity.X, 0, Velocity.Z)
+	local Speed = Horizontal.Magnitude
+
+	if Speed < 0.1 then
+		return
+	end
+
+	local Direction = Horizontal.Unit
+	local LookAhead = math.clamp(Speed * 0.1, 1.25, 3)
+
+	local RayHeight = 3
+	local RayLength = 10
+
+	local CurrentGround = Services.Workspace:Raycast(
+		CurrentRoot.Position + Vector3.new(0, RayHeight, 0),
+		Vector3.new(0, -RayLength, 0),
+		StairFixParams
+	)
+
+	local ForwardGround = Services.Workspace:Raycast(
+		CurrentRoot.Position + Direction * LookAhead + Vector3.new(0, RayHeight, 0),
+		Vector3.new(0, -RayLength, 0),
+		StairFixParams
+	)
+
+	if not CurrentGround or not ForwardGround then
+		return
+	end
+
+	local GroundDifference = ForwardGround.Position.Y - CurrentGround.Position.Y
+
+	if GroundDifference < -0.08 then
+		if Velocity.Y > 0 then
+			CurrentRoot.AssemblyLinearVelocity = Vector3.new(Velocity.X, 0, Velocity.Z)
+		elseif Velocity.Y > -12 then
+			CurrentRoot.AssemblyLinearVelocity = Vector3.new(Velocity.X, -8, Velocity.Z)
+		end
+	elseif GroundDifference > 0.08 then
+		if Velocity.Y > 3 then
+			CurrentRoot.AssemblyLinearVelocity = Vector3.new(Velocity.X, 0, Velocity.Z)
+		end
 	end
 end)
 
@@ -1627,6 +1984,338 @@ end)
 	Groupboxes.Exploits_Archives:AddToggle("SortBoxESP", { Text = L("Sort Box ESP"), Default = false, Tooltip = L("Highlights the box you need to sort next (Honcho).") })
 	Groupboxes.Exploits_Archives:AddToggle("AutoGiveTicket", { Text = L("Auto Give Ticket"), Default = false, Tooltip = L("Automatically gives your ticket to the Teller when your number matches.") })
 	Groupboxes.Exploits_Archives:AddToggle("RemoveCurrents", { Text = L("Remove Currents"), Default = false, Tooltip = L("Electric puddles can no longer damage you.") })
+	-- Ported from the old hub: remove the two Archives annoyances at the source.
+	Groupboxes.Exploits_Archives:AddToggle("AntiRansom", { Text = L("AntiRansom"), Default = false, Tooltip = L("AntiRansomTooltip") })
+	Groupboxes.Exploits_Archives:AddToggle("AntiClosetTrash", { Text = L("AntiClosetTrash"), Default = false, Tooltip = L("AntiClosetTrashTooltip") })
+	Groupboxes.Exploits_Archives:AddToggle("TimeShower", { Text = L("TimeShower"), Default = false, Tooltip = L("TimeShowerTooltip") })
+	Groupboxes.Exploits_Archives:AddToggle("ForgetMeNotSolver", { Text = L("ForgetMeNotSolver"), Default = false, Tooltip = L("ForgetMeNotSolverTooltip") })
+
+	-- Anti Ransom: exact instance name, watched on every root-level spawn.
+	Toggles.AntiRansom:OnChanged(function(Value)
+		if Connections.AntiRansom then
+			Connections.AntiRansom:Disconnect()
+			Connections.AntiRansom = nil
+		end
+
+		if not Value then
+			return
+		end
+
+		Connections.AntiRansom = Services.Workspace.ChildAdded:Connect(function(Child)
+			if Toggles.AntiRansom.Value and Child.Name:lower() == "ransom" then
+				Child:Destroy()
+			end
+		end)
+	end)
+
+	-- Anti Closet Trash: the clutter that blocks Archives closets is name
+	-- prefixed, so a prefix match replaces the old exact-name list while keeping
+	-- unrelated objects safe.
+	local ClosetTrashPrefixes = { "binder", "shoe", "shelf" }
+
+	Toggles.AntiClosetTrash:OnChanged(function(Value)
+		if Connections.AntiClosetTrash then
+			Connections.AntiClosetTrash:Disconnect()
+			Connections.AntiClosetTrash = nil
+		end
+
+		if not Value then
+			return
+		end
+
+		Connections.AntiClosetTrash = Services.Workspace.ChildAdded:Connect(function(Child)
+			if not Toggles.AntiClosetTrash.Value then
+				return
+			end
+
+			local Lower = Child.Name:lower()
+			for _, Prefix in ClosetTrashPrefixes do
+				if Lower:sub(1, #Prefix) == Prefix then
+					Child:Destroy()
+					break
+				end
+			end
+		end)
+	end)
+	-- Archives clock readout: the game's own label is mirrored, never replaced.
+	local ArchivesClockLabel = Instance.new("TextLabel")
+	ArchivesClockLabel.Name = "ZyroHub_ArchivesClock"
+	ArchivesClockLabel.AnchorPoint = Vector2.new(0, 1)
+	ArchivesClockLabel.Position = UDim2.new(0, 12, 1, -12)
+	ArchivesClockLabel.Size = UDim2.new(0, 180, 0, 32)
+	ArchivesClockLabel.BackgroundTransparency = 1
+	ArchivesClockLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	ArchivesClockLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	ArchivesClockLabel.TextStrokeTransparency = 0.35
+	ArchivesClockLabel.Font = Enum.Font.GothamBold
+	ArchivesClockLabel.TextSize = 18
+	ArchivesClockLabel.TextXAlignment = Enum.TextXAlignment.Left
+	ArchivesClockLabel.Text = "Time: --:--"
+	ArchivesClockLabel.Visible = false
+	ArchivesClockLabel.Parent = Container
+
+	local ArchivesClockSource
+	local ArchivesClockNextScan = 0
+
+	local function ResolveArchivesClockLabel()
+		if ArchivesClockSource and ArchivesClockSource.Parent and ArchivesClockSource:IsDescendantOf(game) then
+			return ArchivesClockSource
+		end
+
+		local Rooms = Services.Workspace:FindFirstChild("CurrentRooms")
+		if not Rooms then
+			return nil
+		end
+
+		for _, Room in Rooms:GetChildren() do
+			local Assets = Room:FindFirstChild("Assets", true)
+			local Clock = Assets and Assets:FindFirstChild("ArchivesClock", true)
+			local Time = Clock and Clock:FindFirstChild("Time", true)
+			local Label = Time and Time:FindFirstChild("TextLabel")
+
+			if Label and Label:IsA("TextLabel") then
+				ArchivesClockSource = Label
+				return Label
+			end
+		end
+
+		return nil
+	end
+
+	Toggles.TimeShower:OnChanged(function(Value)
+		if Connections.TimeShower then
+			Connections.TimeShower:Disconnect()
+			Connections.TimeShower = nil
+		end
+
+		ArchivesClockLabel.Visible = Value and true or false
+
+		if not Value then
+			ArchivesClockLabel.Text = "Time: --:--"
+			return
+		end
+
+		Connections.TimeShower = Services.RunService.Heartbeat:Connect(function()
+			if not Toggles.TimeShower.Value then
+				return
+			end
+
+			-- A cached label is refreshed every frame; the (expensive) search for
+			-- it is throttled to once per second.
+			local Now = tick()
+			local Cached = ArchivesClockSource
+
+			if not (Cached and Cached.Parent) then
+				if Now < ArchivesClockNextScan then
+					return
+				end
+				ArchivesClockNextScan = Now + 1
+			end
+
+			local Label = ResolveArchivesClockLabel()
+			ArchivesClockLabel.Text = Label and ("Time: " .. Label.Text) or "Time: --:--"
+		end)
+	end)
+
+	-- Forget Me Not skipper (ported from the old hub): the character is moved into
+	-- the door's own "Hidden" part while the door's open events are fired, then
+	-- dropped so the room state resets. Every wait is cancellation-aware.
+	local ForgetMeNotProcessing = {}
+	local ForgetMeNotNotified = {}
+	Globals.ForgetMeNotRunning = false
+
+	local function ForgetMeNotCharacter()
+		return LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	end
+
+	local function ForgetMeNotGetNextRoom(Number)
+		while Globals.ForgetMeNotRunning do
+			for RoomNumber = Number + 1, Number + 5 do
+				local NextRoom = CurrentRooms:FindFirstChild(tostring(RoomNumber))
+				if NextRoom then
+					return NextRoom
+				end
+			end
+			task.wait(0.1)
+		end
+		return nil
+	end
+
+	local function ForgetMeNotFireLookAts(Room)
+		for Index = 1, 6 do
+			local Object = Room:FindFirstChild(tostring(Index))
+			local LookAt = Object and Object:FindFirstChild("LookAt")
+
+			if LookAt then
+				pcall(function()
+					LookAt:FireServer()
+				end)
+			end
+		end
+	end
+
+	local function ForgetMeNotRun(Room)
+		if not Globals.ForgetMeNotRunning or ForgetMeNotProcessing[Room] then
+			return
+		end
+
+		ForgetMeNotProcessing[Room] = true
+
+		task.wait(2)
+
+		if not Globals.ForgetMeNotRunning or not Room.Parent then
+			ForgetMeNotProcessing[Room] = nil
+			return
+		end
+
+		if not Room:FindFirstChild("ForgetMeNotVineDoors", true) then
+			ForgetMeNotProcessing[Room] = nil
+			return
+		end
+
+		ForgetMeNotFireLookAts(Room)
+
+		local NextRoom = ForgetMeNotGetNextRoom(tonumber(Room.Name))
+		if not NextRoom then
+			ForgetMeNotProcessing[Room] = nil
+			return
+		end
+
+		local Door = NextRoom:FindFirstChild("Door")
+		if not Door or Door:GetAttribute("Opened") == true then
+			ForgetMeNotProcessing[Room] = nil
+			return
+		end
+
+		if not Room:FindFirstChild(LocalPlayer.Name, true) then
+			if not ForgetMeNotNotified[Room] then
+				ForgetMeNotNotified[Room] = true
+				Functions.Notify({ Title = L("ForgetMeNotEnterFirst") })
+			end
+
+			repeat
+				task.wait()
+			until Room:FindFirstChild(LocalPlayer.Name, true)
+				or not Globals.ForgetMeNotRunning
+				or not Room.Parent
+
+			if not Globals.ForgetMeNotRunning or not Room.Parent then
+				ForgetMeNotProcessing[Room] = nil
+				return
+			end
+		end
+
+		if not Globals.ForgetMeNotRunning or Door:GetAttribute("Opened") == true then
+			ForgetMeNotProcessing[Room] = nil
+			return
+		end
+
+		local Hidden = Door:WaitForChild("Hidden", 10)
+
+		if not Hidden or not Globals.ForgetMeNotRunning or Door:GetAttribute("Opened") == true then
+			ForgetMeNotProcessing[Room] = nil
+			return
+		end
+
+		task.wait(3)
+
+		if not Globals.ForgetMeNotRunning or not NextRoom.Parent or Door:GetAttribute("Opened") == true then
+			ForgetMeNotProcessing[Room] = nil
+			return
+		end
+
+		while Globals.ForgetMeNotRunning and NextRoom.Parent and Door:GetAttribute("Opened") ~= true do
+			local CurrentCharacter = ForgetMeNotCharacter()
+
+			if CurrentCharacter then
+				if Hidden:IsA("BasePart") then
+					CurrentCharacter:PivotTo(Hidden.CFrame)
+				elseif Hidden:IsA("Model") then
+					CurrentCharacter:PivotTo(Hidden:GetPivot())
+				end
+			end
+
+			pcall(function()
+				Door.ClientOpen:Fire()
+			end)
+
+			pcall(function()
+				Door.ClientOpen:FireServer()
+			end)
+
+			task.wait()
+		end
+
+		if Globals.ForgetMeNotRunning and Door:GetAttribute("Opened") == true then
+			local CurrentCharacter = ForgetMeNotCharacter()
+
+			if CurrentCharacter then
+				CurrentCharacter:PivotTo(CFrame.new(0, -120, 0))
+				Functions.Notify({ Title = L("ForgetMeNotVoidHint") })
+			end
+
+			ForgetMeNotNotified[Room] = nil
+		end
+
+		ForgetMeNotProcessing[Room] = nil
+	end
+
+	local function ForgetMeNotCheckRooms()
+		local LatestNumber = tonumber(LatestRoom.Value) or 0
+
+		for RoomNumber = math.max(0, LatestNumber - 4), LatestNumber do
+			if not Globals.ForgetMeNotRunning then
+				return
+			end
+
+			local Room = CurrentRooms:FindFirstChild(tostring(RoomNumber))
+
+			if Room and not ForgetMeNotProcessing[Room] then
+				task.spawn(ForgetMeNotRun, Room)
+			end
+		end
+	end
+
+	Toggles.ForgetMeNotSolver:OnChanged(function(Value)
+		if Connections.ForgetMeNotSolver then
+			Connections.ForgetMeNotSolver:Disconnect()
+			Connections.ForgetMeNotSolver = nil
+		end
+
+		ForgetMeNotProcessing = {}
+		ForgetMeNotNotified = {}
+		Globals.ForgetMeNotRunning = false
+
+		if not Value then
+			return
+		end
+
+		Globals.ForgetMeNotRunning = true
+
+		Connections.ForgetMeNotSolver = CurrentRooms.ChildAdded:Connect(function(Room)
+			if not tonumber(Room.Name) then
+				return
+			end
+
+			task.spawn(function()
+				task.wait(2)
+
+				if Globals.ForgetMeNotRunning and Room.Parent then
+					task.spawn(ForgetMeNotRun, Room)
+				end
+			end)
+		end)
+
+		task.spawn(function()
+			while Globals.ForgetMeNotRunning and Toggles.ForgetMeNotSolver.Value do
+				ForgetMeNotCheckRooms()
+				task.wait(2)
+			end
+		end)
+
+		ForgetMeNotCheckRooms()
+	end)
+
 	Groupboxes.Exploits_Archives:AddDivider()
 	Groupboxes.Exploits_Archives:AddButton({
 		Text = L("Archives Debug Dump"),
@@ -2455,6 +3144,10 @@ Groupboxes.Visuals_LeftTab = Tabs.Visuals:AddRightTabbox("Camera / Effects")
 Groupboxes.Visuals_Camera = Groupboxes.Visuals_LeftTab:AddTab("Camera")
 Groupboxes.Visuals_Camera:AddToggle("AmbientToggle", { Text = L("Ambient"), Default = false, Tooltip = L("Changes the lighting color to the specified value.") })
 Groupboxes.Visuals_Camera:AddSlider("FieldOfView", { Text = L("Field of View"), Min = 1, Max = 120, Default = 70, Rounding = 0 })
+-- Ported from the old hub: the FOV slider is only applied while this is on, so
+-- the game keeps its own camera when the user is not overriding it.
+Groupboxes.Visuals_Camera:AddToggle("FOVToggle", { Text = L("CustomFOV"), Default = false, Tooltip = L("CustomFOVTooltip") })
+Toggles.FOVToggle:AddKeyPicker("FOVToggleKeybind", { Text = L("CustomFOV"), Default = "O", Mode = "Toggle", SyncToggleState = true })
 Groupboxes.Visuals_Camera:AddDivider()
 Groupboxes.Visuals_Camera:AddToggle("RemoveCameraShake", {
 	Text = L("Remove Camera Shake"), Default = false, Tooltip = L("Prevents the camera from shaking."),
@@ -3017,6 +3710,253 @@ Groupboxes.Floors_Automation:AddSlider("AutoSteerMinecartDuckDistance", {
 	Disabled = not Functions.CheckCompatability({"require"}), DisabledTooltip = Globals.IncompatibleMessage
 })
 Groupboxes.Floors_Automation:AddDivider()
+-- =====================================================================
+-- THE ROOMS — auto walk (ported from the old hub)
+-- =====================================================================
+Groupboxes.Floors_Automation:AddToggle("RoomsAutoWalk", {
+	Text = L("RoomsAutoWalk"), Default = false, Tooltip = L("RoomsAutoWalkTooltip")
+})
+Groupboxes.Floors_Automation:AddSlider("RoomsAutoWalkPathfindTimeout", {
+	Text = L("PathfindTimeout"), Min = 0.5, Max = 3, Default = 1, Rounding = 1
+})
+Groupboxes.Floors_Automation:AddToggle("RoomsAutoWalkIgnoreA60", {
+	Text = L("IgnoreA60"), Default = false, Tooltip = L("IgnoreA60Tooltip")
+})
+Groupboxes.Floors_Automation:AddToggle("RoomsAutoWalkShowPathToggle", {
+	Text = L("ShowPath"), Default = false, Tooltip = L("ShowPathTooltip")
+})
+Toggles.RoomsAutoWalkShowPathToggle:AddColorPicker("RoomsAutoWalkShowPathColor", {
+	Text = L("ShowPath"), Default = Color3.fromRGB(0, 255, 0), Transparency = 0
+})
+Groupboxes.Floors_Automation:AddToggle("RoomsAutoWalkSpoofFootsteps", {
+	Text = L("SpoofFootsteps"), Default = false, Tooltip = L("SpoofFootstepsTooltip"),
+	Disabled = not Functions.CheckCompatability({ "hookmetamethod", "newcclosure", "getnamecallmethod" }),
+	DisabledTooltip = Globals.IncompatibleMessage
+})
+
+Functions.RoomsAutoWalk = {}
+Globals.RoomsAutoWalkActive = false
+
+local RoomsAutoWalkEntities = {
+	"RushMoving", "AmbushMoving", "BackdoorRush", "A60", "A120", "CustomEntity", "GlitchRush", "GlitchAmbush"
+}
+
+local function RoomsClearPathNodes()
+	for _, Node in Globals.RoomsNodesFolder:GetChildren() do
+		if Node.Name == "PathNode" then
+			Node:Destroy()
+		end
+	end
+end
+
+Functions.RoomsAutoWalk.GetNearestHidingSpot = function()
+	local Nearest = { Distance = math.huge, Object = nil }
+
+	for _, Object in Objects.HidingSpots do
+		if Object.PrimaryPart and Object:FindFirstChild("HidePrompt") then
+			local Distance = LocalPlayer:DistanceFromCharacter(Object.PrimaryPart.Position)
+			local HiddenPlayer = Object:FindFirstChild("HiddenPlayer", true)
+
+			if Distance < Nearest.Distance
+				and Object.PrimaryPart.Position.Y > -10
+				and HiddenPlayer
+				and not HiddenPlayer.Value then
+				Nearest.Distance = Distance
+				Nearest.Object = Object
+			end
+		end
+	end
+
+	return Nearest.Object
+end
+
+Functions.RoomsAutoWalk.GetPathfindTarget = function()
+	local CurrentRoom = CurrentRooms[tostring(LatestRoom.Value)]
+
+	for _, Object in Services.Workspace:GetChildren() do
+		if table.find(RoomsAutoWalkEntities, Object.Name) and Object.PrimaryPart then
+			-- "Ignore A-60" means: keep walking straight through A-60 rooms.
+			local Ignore = Object.Name == "A60" and Toggles.RoomsAutoWalkIgnoreA60.Value
+
+			if not Ignore and Object.PrimaryPart.Position.Y > -10 and Object.PrimaryPart.Position.Y < 150 then
+				return Functions.RoomsAutoWalk.GetNearestHidingSpot()
+					or (CurrentRoom and CurrentRoom:FindFirstChild("RoomExit"))
+			end
+		end
+	end
+
+	return CurrentRoom and CurrentRoom:FindFirstChild("RoomExit")
+end
+
+Toggles.RoomsAutoWalk:OnChanged(function()
+	RoomsClearPathNodes()
+end)
+
+Toggles.RoomsAutoWalkShowPathToggle:OnChanged(function(Value)
+	for _, Node in Globals.RoomsNodesFolder:GetChildren() do
+		if Node.Name == "PathNode" then
+			Node.Transparency = Value and 0.5 or 1
+		end
+	end
+end)
+
+Options.RoomsAutoWalkShowPathColor:OnChanged(function(Value)
+	for _, Node in Globals.RoomsNodesFolder:GetChildren() do
+		if Node.Name == "PathNode" then
+			Node.Color = Value
+		end
+	end
+end)
+Connections.RoomsAutoWalkHandler = Services.RunService.Heartbeat:Connect(function()
+	if Floor ~= "Rooms"
+		or not Toggles.RoomsAutoWalk.Value
+		or Globals.RoomsAutoWalkActive
+		or not CollisionPart
+		or LatestRoom.Value >= 1000 then
+		return
+	end
+
+	Globals.RoomsAutoWalkActive = true
+
+	local Path = Services.PathfindingService:CreatePath({
+		AgentCanJump = true, AgentCanClimb = false, WaypointSpacing = 4,
+		AgentRadius = 1.5, AgentHeight = 1.5, Costs = { StuckPart = 8 }
+	})
+
+	if Toggles.RoomsAutoWalkIgnoreA60.Value and not Toggles.PositionSpoof.Value then
+		Toggles.PositionSpoof:SetValue(true)
+	end
+
+	local TargetPart = Functions.RoomsAutoWalk.GetPathfindTarget()
+	if not TargetPart then
+		Globals.RoomsAutoWalkActive = false
+		return
+	end
+
+	local HidePrompt = TargetPart:FindFirstChild("HidePrompt")
+	local TargetPosition
+
+	if TargetPart.Name == "RoomExit" then
+		TargetPosition = TargetPart.Position
+	elseif HidePrompt then
+		for _, Part in TargetPart:GetDescendants() do
+			if Part:IsA("BasePart") then
+				Part.CanCollide = false
+			end
+		end
+		TargetPosition = TargetPart.PrimaryPart and TargetPart.PrimaryPart.Position
+	end
+
+	local CurrentRoom = CurrentRooms[tostring(LatestRoom.Value)]
+
+	-- Both door models in the room are opened collision-wise so the path can run
+	-- through them instead of being "stuck" at the doorway.
+	if CurrentRoom and CurrentRoom:FindFirstChild("Door") and CurrentRoom.Door:FindFirstChild("Door") then
+		CurrentRoom.Door.Door.CanCollide = false
+	end
+
+	if not TargetPosition or LocalPlayer:DistanceFromCharacter(TargetPosition) >= 750 then
+		Globals.RoomsAutoWalkActive = false
+		return
+	end
+
+	Path:ComputeAsync(CollisionPart.Position, TargetPosition)
+	local Waypoints = Path:GetWaypoints()
+
+	if #Waypoints == 0 then
+		local RoomExit = CurrentRoom and CurrentRoom:FindFirstChild("RoomExit")
+		if RoomExit then
+			Humanoid:MoveTo(RoomExit.Position)
+		end
+		Globals.RoomsAutoWalkActive = false
+		return
+	end
+
+	RoomsClearPathNodes()
+
+	for _, Waypoint in Waypoints do
+		local Block = Instance.new("Part")
+		Block.Name = "PathNode"
+		Block.Shape = Enum.PartType.Ball
+		Block.Material = Enum.Material.Neon
+		Block.Anchored = true
+		Block.CanCollide = false
+		Block.Size = Vector3.one
+		Block.Position = Waypoint.Position
+		Block.Transparency = Toggles.RoomsAutoWalkShowPathToggle.Value and 0.5 or 1
+		Block.Color = Options.RoomsAutoWalkShowPathColor.Value
+		Block.Parent = Globals.RoomsNodesFolder
+	end
+
+	local Stuck = false
+
+	for _, Waypoint in Waypoints do
+		if Stuck or not Toggles.RoomsAutoWalk.Value then
+			break
+		end
+
+		local Finished = false
+		local Start = tick()
+
+		local StepConnection
+		StepConnection = Services.RunService.RenderStepped:Connect(function()
+			if Stuck or not Toggles.RoomsAutoWalk.Value then
+				Finished = true
+				return
+			end
+
+			-- A spot became available (or disappeared): recompute on the next beat.
+			local NewTarget = Functions.RoomsAutoWalk.GetPathfindTarget()
+			if NewTarget and NewTarget:FindFirstChild("HidePrompt") and not HidePrompt then
+				Finished = true
+				return
+			end
+
+			if HidePrompt
+				and LocalPlayer:DistanceFromCharacter(TargetPosition) < HidePrompt.MaxActivationDistance
+				and Character:GetAttribute("Hiding") ~= true then
+				Functions.ForceFirePrompt(HidePrompt)
+			end
+
+			local FlatPosition = Vector3.new(Waypoint.Position.X, RootPart.Position.Y, Waypoint.Position.Z)
+
+			if LocalPlayer:DistanceFromCharacter(FlatPosition) < 5 then
+				Finished = true
+			end
+
+			Humanoid:MoveTo(Waypoint.Position)
+		end)
+
+		while not Finished do
+			if tick() - Start > Options.RoomsAutoWalkPathfindTimeout.Value then
+				-- Remember the place we got stuck at so the next path avoids it.
+				local StuckBlock = Instance.new("Part")
+				StuckBlock.Name = "StuckPart"
+				StuckBlock.Shape = Enum.PartType.Ball
+				StuckBlock.Anchored = true
+				StuckBlock.CanCollide = false
+				StuckBlock.Transparency = 1
+				StuckBlock.Size = Vector3.one
+				StuckBlock.CFrame = CollisionPart.CFrame
+				StuckBlock.Parent = Globals.RoomsNodesFolder
+
+				local Modifier = Instance.new("PathfindingModifier", StuckBlock)
+				Modifier.Label = "StuckPart"
+
+				Stuck = true
+				break
+			end
+
+			task.wait()
+		end
+
+		StepConnection:Disconnect()
+		Humanoid:MoveTo(RootPart.Position)
+	end
+
+	Globals.RoomsAutoWalkActive = false
+end)
+
 Connections.RoomsHandler = CurrentRooms.ChildAdded:Connect(function(Room)
 	for _, Object in Globals.RoomsNodesFolder:GetChildren() do
 		if Object.Name == "StuckPart" then Object:Destroy() end
@@ -3355,6 +4295,27 @@ if Functions.CheckCompatability({"hookmetamethod", "newcclosure", "getnamecallme
 
 end
 
+-- Footstep spoof (ported from the old hub): the game reads Humanoid.MoveDirection
+-- to decide whether you are making noise, so while auto-walk drives the
+-- character we report the look direction instead of the real movement vector.
+if Functions.CheckCompatability({"hookmetamethod", "newcclosure", "getnamecallmethod"}) then
+	local OtherHook
+	OtherHook = ZyroHub.Environment.hookmetamethod(game, "__index", ZyroHub.Environment.newcclosure(function(Self, Property)
+		local Real = OtherHook(Self, Property)
+
+		if Property == "MoveDirection"
+			and Self == Humanoid
+			and Globals.RoomsAutoWalkActive
+			and Toggles.RoomsAutoWalkSpoofFootsteps.Value
+			and Floor == "Rooms"
+			and not Character:GetAttribute("Hiding") then
+			return RootPart.CFrame.LookVector
+		end
+
+		return Real
+	end))
+end
+
 if Services.ReplicatedStorage:FindFirstChild("ModulesClient") then
 	ClientModules = Services.ReplicatedStorage.ModulesClient
 else
@@ -3472,10 +4433,12 @@ Functions.HandleCharacter = function(NewCharacter)
 			Main_Game.crouch(false)
 			Globals.AutoMinecartDucked = false
 		end
-		if Main_Game then
-			Main_Game.fovtarget = Options.FieldOfView.Value
-		else
-			Camera.FieldOfView = Options.FieldOfView.Value
+		if Toggles.FOVToggle.Value then
+			if Main_Game then
+				Main_Game.fovtarget = Options.FieldOfView.Value
+			else
+				Camera.FieldOfView = Options.FieldOfView.Value
+			end
 		end
 		Globals.LastDuck = tick()
 	end)
@@ -3962,11 +4925,13 @@ Functions.HandleCharacter = function(NewCharacter)
 			Camera.CFrame = CamPosition
 		end
 
-		if Main_Game then
-			task.wait()
-			Main_Game.fovtarget = Options.FieldOfView.Value
-		else
-			Camera.FieldOfView = Options.FieldOfView.Value
+		if Toggles.FOVToggle.Value then
+			if Main_Game then
+				task.wait()
+				Main_Game.fovtarget = Options.FieldOfView.Value
+			else
+				Camera.FieldOfView = Options.FieldOfView.Value
+			end
 		end
 
 		if Toggles.RemoveClosetDelay.Value

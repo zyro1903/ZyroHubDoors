@@ -29,6 +29,19 @@ local Interface = {
     ApplySettingsTab = FromNet("ZyroHub_SettingsTab", ProjectUrl .. "Components/SettingsTab.luau", "Components/SettingsTab.luau")
 }
 
+-- Signature overlay: optional on purpose. It is loaded without the assert used
+-- for core modules, so a missing or broken copy degrades to "no watermark"
+-- instead of stopping the hub. Callers must guard with `type(...) == "table"`.
+local Watermark, WatermarkError = Net:LoadModule(
+    "ZyroHub_Watermark",
+    ProjectUrl .. "Components/Watermark.luau",
+    "Components/Watermark.luau"
+)
+if not Watermark then
+    warn(WatermarkError or "[ZyroHub] Watermark component unavailable; signature overlay skipped.")
+end
+Interface.Watermark = Watermark
+
 -- Deduplicated theme registry: "Zyro Signature" was an exact duplicate of
 -- the default palette and has been removed.
 Interface.ThemeManager.BuiltInThemes = {

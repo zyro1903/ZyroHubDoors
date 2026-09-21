@@ -29,6 +29,10 @@ This project does not collect analytics, account data, IP addresses, HWIDs, or e
 - Reversible performance mode
 - Local config export/import codes
 - Favorites for frequently used toggles
+- Draggable signature watermark (version, name, executor, live FPS)
+- Position Spoof stair fix and manual Hip Height control
+- The Rooms: auto walk with pathfinding, A-60 handling and footstep spoof
+- Extra Archives tools: Forget-Me-Not skipper, clock readout, anti-spawn toggles
 
 ## Validation
 
