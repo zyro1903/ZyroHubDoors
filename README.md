@@ -41,5 +41,3 @@ Every push and pull request runs `scripts/validate.ps1` to check for removed tel
 ## Credits
 
 Creator: Zyro
-Helper: Rag_zar123
-Do not remove the original credit when using or modifying this project.

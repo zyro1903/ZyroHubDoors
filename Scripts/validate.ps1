@@ -6,8 +6,7 @@ $patterns = @(
     "api/send",
     "AdonisBypass",
     "Legit",
-    "Linoria",
-    "fix_credits",
+        "Linoria",
     "LICENSE.md"
 )
 
