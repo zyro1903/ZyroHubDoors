@@ -1,4 +1,4 @@
-local LoadStart = tick()
+﻿local LoadStart = tick()
 ZyroHub.SavePath = "Doors/Game"
 
 local Library = ZyroHub.Interface.Library
@@ -154,6 +154,10 @@ local Entities = {
 		Alias = "Drones",
 		NotifyMessage = { Title = L("Entity 'Drone' has spawned."), Body = L("Do not touch it.") }
 	},
+	["DronesStampede"] = {
+		Alias = "DronesStampede",
+		NotifyMessage = { Title = L("Entity 'Drones Stampede' has spawned."), Body = L("Find a hiding spot.") }
+	},
 	["Teller"] = {
 		Alias = "Teller",
 		NotifyMessage = { Title = L("Entity 'Teller' has spawned."), Body = L("Give your ticket before the timer runs out!") }
@@ -185,6 +189,7 @@ local EntityIcons = {
 	["Alma"]            = "rbxassetid://10183704772",
 	["Honcho"]          = "rbxassetid://12571092295",
 	["Drone"]           = "rbxassetid://12711591665",
+	["DronesStampede"]  = "rbxassetid://12711591665",
 	["Teller"]          = "rbxassetid://10183704772",
 	["Bash"]            = "rbxassetid://12571092295"
 }
@@ -1966,12 +1971,13 @@ end)
 	Groupboxes.Exploits_Archives = Tabs.Exploits:AddRightGroupbox(L("The Archives"))
 	Groupboxes.Exploits_Archives:AddToggle("ArchivesEntityESP", { Text = L("Archives Entity ESP"), Default = false })
 	Toggles.ArchivesEntityESP:AddColorPicker("ArchivesESPColor", { Text = L("Entity Color"), Default = Color3.fromRGB(255, 170, 0), Transparency = 0.1 })
-	Groupboxes.Exploits_Archives:AddDropdown("ArchivesESPList", { Text = L("Entities"), Values = { "Scribbles", "Alma", "Honcho", "Drones", "Teller", "Bash" }, Default = { "Scribbles", "Alma", "Honcho", "Drones", "Teller", "Bash" }, Multi = true })
+	Groupboxes.Exploits_Archives:AddDropdown("ArchivesESPList", { Text = L("Entities"), Values = { "Scribbles", "Alma", "Honcho", "Drones", "DronesStampede", "Teller", "Bash" }, Default = { "Scribbles", "Alma", "Honcho", "Drones", "DronesStampede", "Teller", "Bash" }, Multi = true })
 	Groupboxes.Exploits_Archives:AddToggle("ArchivesNotify", { Text = L("Archives Notifications"), Default = true })
 	Groupboxes.Exploits_Archives:AddDivider()
 	Groupboxes.Exploits_Archives:AddToggle("RemoveScribbles", { Text = L("Remove Scribbles"), Default = false, Tooltip = L("Removes the paper-thrower and strips its damage.") })
 	Groupboxes.Exploits_Archives:AddToggle("NoScribbleDamage", { Text = L("No Scribbles Damage"), Default = false, Tooltip = L("The paper projectiles can no longer damage you.") })
 	Groupboxes.Exploits_Archives:AddToggle("RemoveDrones",  { Text = L("Remove Drones"),   Default = false, Tooltip = L("Drones can no longer touch or damage you.") })
+	Groupboxes.Exploits_Archives:AddToggle("AntiStampede",  { Text = L("Anti Stampede"),   Default = false, Tooltip = L("AntiStampedeTooltip") })
 	Groupboxes.Exploits_Archives:AddToggle("RemoveAlma",   { Text = L("Remove Alma"),     Default = false, Tooltip = L("Removes Alma the moment it appears. Never look at it.") })
 	Groupboxes.Exploits_Archives:AddToggle("RemoveBash",   { Text = L("Remove Bash"),     Default = false, Tooltip = L("Removes Bash the moment it appears.") })
 	Groupboxes.Exploits_Archives:AddToggle("NoAlmaDamage", { Text = L("No Alma Damage"),  Default = false, Tooltip = L("Freezes your health during the eye minigame.") })
@@ -2348,6 +2354,12 @@ end)
 	-- THE ARCHIVES — pattern-based (exact instance names vary per update)
 	-- =======================================================================
 	local ArchivesEntityPatterns = {
+		-- Exact-name entries first: the stampede boss name CONTAINS the word
+		-- "drone", so a loose "drone"-first ordering would swallow it.
+		-- ("DronesStampede" must resolve to the stampede table, never to the
+		-- regular drone handler.)
+		{ Pattern = "stampede",     Key = "DronesStampede" },
+		{ Pattern = "dronesstampede", Key = "DronesStampede" },
 		{ Pattern = "scribbl", Key = "Scribbles" },
 		{ Pattern = "honcho",  Key = "Honcho" },
 		{ Pattern = "alma",    Key = "Alma" },
@@ -2355,9 +2367,10 @@ end)
 		{ Pattern = "teller",  Key = "Teller" },
 		{ Pattern = "ticketmaster", Key = "Teller" },
 		{ Pattern = "bash",         Key = "Bash" },
-		-- The ticket machine (booth/dispenser/counter/stand variants) IS the
-		-- Teller; generic pattern last so the specific ones above win first.
-		{ Pattern = "ticket",       Key = "Teller" },
+		-- NOTE: the generic "ticket" pattern was REMOVED. The ticket booth /
+		-- dispenser / counter furniture all contain "ticket" and were being
+		-- mislabeled as the Teller entity (false spawn pings + false ESP).
+		-- Auto Give Ticket is prompt-based and does not need it.
 	}
 	-- "office"/"room"/... : Honcho's office container and bulk prop holders
 	-- must never match, or the entire room gets ESP'd as one big "Honcho".
@@ -2414,8 +2427,25 @@ end)
 	-- Strict match: additionally rejects Honcho office furniture. Anything
 	-- honcho-named that is not the boss itself (exact "Honcho" or a boss-like
 	-- compound) must be a real rig (carry a Humanoid) to count as the entity.
+	-- The Teller machine is the same story: exact "Teller"/"TellerRig" or a
+	-- rig with a Humanoid counts; booth/dispenser/counter furniture does not.
 	Functions.MatchArchivesEntity = function(Name, Object)
 		local Entry, Key = Functions.MatchArchivesLoose(Name)
+		if Entry and Key == "DronesStampede" then
+			return Entry, Key
+		end
+		if Entry and Key == "Teller" then
+			local SqueezedTeller = Name:lower():gsub("[%s_%-]", "")
+			if SqueezedTeller == "teller" or SqueezedTeller == "tellerrig"
+				or SqueezedTeller:find("entity", 1, true) ~= nil
+				or SqueezedTeller:find("npc", 1, true) ~= nil then
+				return Entry, Key
+			end
+			if Object and Object:FindFirstChildWhichIsA("Humanoid", true) ~= nil then
+				return Entry, Key
+			end
+			return nil
+		end
 		if not Entry or Key ~= "Honcho" then return Entry, Key end
 		local Squeezed = Name:lower():gsub("[%s_%-]", "")
 		local IsBossName = Squeezed == "honcho"
@@ -2475,6 +2505,23 @@ end)
 
 	Functions.HandleArchivesEntity = function(Object)
 		local Entry, Key = Functions.MatchArchivesEntity(Object.Name, Object)
+		-- A stampede-boss sub-part can carry a drone-ish name; route it to the
+		-- stampede handler instead of the normal-drone counter by checking the
+		-- ancestor chain BEFORE collapsing anything.
+		if Key == "Drone" then
+			local Node = Object.Parent
+			while Node and Node ~= Services.Workspace do
+				local _, AncestorKey = Functions.MatchArchivesLoose(Node.Name)
+				if AncestorKey == "DronesStampede" then
+					Entry, Key = Entities.DronesStampede, "DronesStampede"
+					break
+				end
+				if AncestorKey == "Drone" and Node.Name == "Drones" then
+					break
+				end
+				Node = Node.Parent
+			end
+		end
 		-- Drones stream in piece by piece and their sub-parts carry drone-ish
 		-- names too, so DescendantAdded fires for every piece of one unit.
 		-- Collapse each piece to the OUTERMOST drone instance, otherwise the
@@ -2512,8 +2559,9 @@ end)
 		-- Room decorations live under "Assets" folders at any depth; they are
 		-- props, not entities (e.g. "ArchivesDesk-Honcho", "HonchoPoster").
 		-- The Teller machine is a functional interactable, not a decoration,
-		-- so it stays eligible even inside an Assets folder.
-		if Object:FindFirstAncestor("Assets") and Key ~= "Teller" then return end
+		-- so it stays eligible even inside an Assets folder. DronesStampede
+		-- is a boss-model entity, also never a prop.
+		if Object:FindFirstAncestor("Assets") and Key ~= "Teller" and Key ~= "DronesStampede" then return end
 		ArchivesHandled[Object] = true
 		table.insert(Objects.ArchivesEntities, Object)
 		local Now = os.clock()
@@ -2522,6 +2570,18 @@ end)
 		if Toggles.ArchivesNotify.Value and not IsContainer and Now - (ArchivesNotifyCooldown[Key] or 0) > 6 then
 			ArchivesNotifyCooldown[Key] = Now
 			Functions.Notify({ Title = Entry.NotifyMessage.Title, Body = Entry.NotifyMessage.Body, Image = EntityIcons[Key] })
+		end
+
+		if Key == "DronesStampede" then
+			-- Stampede boss: NEVER runs the drone-unit burst counter below.
+			-- It is handled like the other named bosses (notify + optional
+			-- ESP entry); the rush-warning stays purely drone-count based.
+			local AntiStampede = Toggles.AntiStampede and Toggles.AntiStampede.Value
+			if AntiStampede then
+				Functions.StripArchivesDamage(Object)
+				pcall(function() Object:Destroy() end)
+			end
+			return
 		end
 
 		if Key == "Drone" then
@@ -2557,34 +2617,33 @@ end)
 				if not Unit or ArchivesHandled[Unit] then return end
 				ArchivesHandled[Unit] = true
 				table.insert(Objects.ArchivesEntities, Unit)
-				-- Stampede = a rush of drone units streaming through the rooms
-				-- around a rush-hour strike (clock 5:00 = from the front, 9:00
-				-- = from the back). Normal room groups are only 2-4 units, so
-				-- the burst threshold sits well above that, and the old phase
-				-- gate is gone: it depended on a "ArchivesDayPhase" child that
-				-- does not exist, which silently ate every real warning.
+				-- Rush warning: counts NORMAL drone units only (never the
+				-- stampede boss - it returns earlier). A room burst is
+				-- 8+ units inside 10 seconds AND within 60s of a rush-hour
+				-- strike, so ordinary 2-4 unit room groups never warn.
 				local Now = os.clock()
-				table.insert(ArchivesSpawnStamps, Now)
-				local Recent = 0
-				for Index = #ArchivesSpawnStamps, 1, -1 do
-					if Now - ArchivesSpawnStamps[Index] > 12 then
-						table.remove(ArchivesSpawnStamps, Index)
-					else
-						Recent += 1
+				local StruckRecently = Now - (Globals.ArchivesPhaseAt or -math.huge) < 60
+				if StruckRecently then
+					table.insert(ArchivesSpawnStamps, Now)
+					local Recent = 0
+					for Index = #ArchivesSpawnStamps, 1, -1 do
+						if Now - ArchivesSpawnStamps[Index] > 10 then
+							table.remove(ArchivesSpawnStamps, Index)
+						else
+							Recent += 1
+						end
 					end
-				end
-				if Recent >= 6 and Now - (ArchivesNotifyCooldown.Stampede or 0) > 60 then
-					ArchivesNotifyCooldown.Stampede = Now
-					if Toggles.ArchivesNotify.Value then
-						local Body = L("Get out of their path!")
-						if Now - (Globals.ArchivesPhaseAt or -math.huge) < 60 then
+					if Recent >= 8 and Now - (ArchivesNotifyCooldown.Stampede or 0) > 60 then
+						ArchivesNotifyCooldown.Stampede = Now
+						if Toggles.ArchivesNotify.Value then
+							local Body = L("Get out of their path!")
 							if Globals.ArchivesStrikeHour == 5 or Globals.ArchivesStrikeHour == 17 then
 								Body = L("Stampede from the FRONT! Stand away from the doors!")
 							elseif Globals.ArchivesStrikeHour == 9 or Globals.ArchivesStrikeHour == 21 then
 								Body = L("Stampede from the BACK! Stand away from the doors!")
 							end
+							Functions.Notify({ Title = L("Drone stampede incoming!"), Body = Body })
 						end
-						Functions.Notify({ Title = L("Drone stampede incoming!"), Body = Body })
 					end
 				end
 				LabelDroneUnit(Unit)
@@ -2831,8 +2890,8 @@ end)
 	for _, Child in GameData:GetChildren() do
 		if Child:IsA("ValueBase") then
 			local Lower = Child.Name:lower()
-			if Lower:find("clock", 1, true) or Lower:find("phase", 1, true) or Lower:find("day", 1, true)
-				or Lower:find("hour", 1, true) or Lower:find("time", 1, true) then
+			if Lower:find("clocktime", 1, true) or Lower:find("striketime", 1, true)
+				or Lower:find("rushhour", 1, true) or Lower:find("stampede", 1, true) then
 				Connections.ArchivesGameDataClockWatcher = Child.Changed:Connect(function()
 					Functions.ArchivesStrike(nil)
 				end)
@@ -2925,8 +2984,18 @@ end)
 		if not Value then return end
 		for _, Object in Objects.ArchivesEntities do
 			local Entry, Key = Functions.MatchArchivesEntity(Object.Name, Object)
-			if Entry and Key == "Drone" then
+			if Entry and Key == "Drone" and Object.Name ~= "Drones" then
 				Functions.StripArchivesDamage(Object)
+			end
+		end
+	end)
+	Toggles.AntiStampede:OnChanged(function(Value)
+		if not Value then return end
+		for _, Object in Objects.ArchivesEntities do
+			local Entry, Key = Functions.MatchArchivesEntity(Object.Name, Object)
+			if Entry and Key == "DronesStampede" and Object.Parent then
+				Functions.StripArchivesDamage(Object)
+				pcall(function() Object:Destroy() end)
 			end
 		end
 	end)
@@ -2987,13 +3056,14 @@ end)
 		Globals.ArchivesAlmaTick = tick()
 
 		-- Drone immunity: while "Remove Drones" is on, freeze health whenever
-		-- a drone unit is close, so stampede touch damage is rolled back.
+		-- a NORMAL drone unit is close (the stampede boss is excluded - it has
+		-- its own Anti Stampede toggle), so touch damage is rolled back.
 		if Toggles.RemoveDrones.Value and Humanoid and Humanoid.Health > 0 then
 			local DroneNear = false
 			for _, Unit in Objects.ArchivesEntities do
-				if Unit.Name ~= "Drones" then
-					local Entry, Key = Functions.MatchArchivesEntity(Unit.Name)
-					if Entry and Key == "Drone" then
+				if Unit.Name ~= "Drones" and Unit.Parent then
+					local Entry, Key = Functions.MatchArchivesEntity(Unit.Name, Unit)
+					if Entry and Key == "Drone" and Unit.Name ~= "Drones" then
 						local Pos
 						if Unit:IsA("BasePart") then
 							Pos = Unit.Position

@@ -1,4 +1,4 @@
-return function(Window)
+﻿return function(Window)
     local L = function(Key)
         return ZyroHub.Localization.Get(Key, ZyroHub.Language)
     end
@@ -8,10 +8,10 @@ return function(Window)
         "<font color='rgb(0, 255, 0)'>+ Signature watermark: version, name, executor and live FPS (draggable)</font>",
         "<font color='rgb(0, 255, 0)'>+ Position Spoof stair fix - no more floating or launching on stairs</font>",
         "<font color='rgb(0, 255, 0)'>+ Manual Hip Height control (toggle + slider)</font>",
-        "<font color='rgb(0, 255, 0)'>+ Auto Rooms, Forget-Me-Not skipper, infinite Crucifix, camera FOV, Archives clock and anti-spawn toggles</font>",
         "<font color='rgb(255, 255, 0)'>~ Footer now shows the running build version</font>",
         "2026-09-07",
         "<font color='rgb(0, 255, 0)'>+ DeathFarm v2: never-exit supervisor, anti-idle, auto-recovery</font>",
+        "<font color='rgb(0, 255, 0)'>+ Encrypted distribution builds (readable source no longer public)</font>",
         "2026-09-06",
         "<font color='rgb(0, 255, 0)'>+ The Archives support: entity ESP, notifications and bypasses</font>",
         "<font color='rgb(0, 255, 0)'>+ Archives item ESP (Pizza, Paper Plane, Ticket and more)</font>",
