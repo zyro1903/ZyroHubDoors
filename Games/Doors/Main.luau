@@ -1,4 +1,4 @@
-﻿local LoadStart = tick()
+local LoadStart = tick()
 ZyroHub.SavePath = "Doors/Game"
 
 local Library = ZyroHub.Interface.Library
@@ -2354,12 +2354,10 @@ end)
 	-- THE ARCHIVES — pattern-based (exact instance names vary per update)
 	-- =======================================================================
 	local ArchivesEntityPatterns = {
-		-- Exact-name entries first: the stampede boss name CONTAINS the word
-		-- "drone", so a loose "drone"-first ordering would swallow it.
-		-- ("DronesStampede" must resolve to the stampede table, never to the
-		-- regular drone handler.)
-		{ Pattern = "stampede",     Key = "DronesStampede" },
-		{ Pattern = "dronesstampede", Key = "DronesStampede" },
+		-- NOTE: "stampede" deliberately NOT a loose pattern. Real stampede names
+		-- rarely contain the word, and a "stampede"+generic-"drone" combo in the
+		-- table broke ordering: "DronesStampede" ended up matching the NORMAL
+		-- drone handler (old bug). Detection below is normalized-name based.
 		{ Pattern = "scribbl", Key = "Scribbles" },
 		{ Pattern = "honcho",  Key = "Honcho" },
 		{ Pattern = "alma",    Key = "Alma" },
@@ -2409,6 +2407,19 @@ end)
 	Functions.MatchArchivesLoose = function(Name)
 		if type(Name) ~= "string" then return nil end
 		local Lower = Name:lower()
+		-- "<Entity>Rig" compounds ("TellerRig", "HonchoRig", "ScribblesRig" ...)
+		-- ARE the entity rigs themselves. The blanket "rig" negative below used
+		-- to swallow them, which made the Teller/Honcho rig handling further
+		-- down dead code. Exact "<entity>rig" is whitelisted BEFORE the
+		-- negatives; fuzzy rig-containing props stay blocked.
+		local Squeezed = Lower:gsub("[%s_%-]", "")
+		if Squeezed:sub(-3) == "rig" then
+			for Key in pairs(Entities) do
+				if Squeezed == Key:lower() .. "rig" then
+					return Entities[Key], Key
+				end
+			end
+		end
 		-- Room props / UI fragments must never match (e.g. "ArchivesDesk-Honcho",
 		-- "HonchoPoster", "PageDrone_1") — they caused false spawn notifications.
 		for _, Negative in ArchivesNegativePatterns do
@@ -2430,10 +2441,17 @@ end)
 	-- The Teller machine is the same story: exact "Teller"/"TellerRig" or a
 	-- rig with a Humanoid counts; booth/dispenser/counter furniture does not.
 	Functions.MatchArchivesEntity = function(Name, Object)
-		local Entry, Key = Functions.MatchArchivesLoose(Name)
-		if Entry and Key == "DronesStampede" then
-			return Entry, Key
+		-- Stampede boss (normalized name: "dronesstampede" etc. — old script's
+		-- exact name, carried over intentionally). Checked BEFORE the loose
+		-- table because "dronesstampede" contains "drone" and would otherwise
+		-- fall into the normal-drone handler (old mixing bug).
+		if type(Name) == "string" then
+			local SqueezedStampede = Name:lower():gsub("[%s_%-]", "")
+			if SqueezedStampede == "dronesstampede" or SqueezedStampede == "dronestampede" then
+				return Entities.DronesStampede, "DronesStampede"
+			end
 		end
+		local Entry, Key = Functions.MatchArchivesLoose(Name)
 		if Entry and Key == "Teller" then
 			local SqueezedTeller = Name:lower():gsub("[%s_%-]", "")
 			if SqueezedTeller == "teller" or SqueezedTeller == "tellerrig"
@@ -2511,12 +2529,13 @@ end)
 		if Key == "Drone" then
 			local Node = Object.Parent
 			while Node and Node ~= Services.Workspace do
-				local _, AncestorKey = Functions.MatchArchivesLoose(Node.Name)
-				if AncestorKey == "DronesStampede" then
+				local SqueezedAncestor = type(Node.Name) == "string" and Node.Name:lower():gsub("[%s_%-]", "") or ""
+				if SqueezedAncestor == "dronesstampede" or SqueezedAncestor == "dronestampede"
+					or SqueezedAncestor == "dronesstampederig" or SqueezedAncestor == "dronestampederig" then
 					Entry, Key = Entities.DronesStampede, "DronesStampede"
 					break
 				end
-				if AncestorKey == "Drone" and Node.Name == "Drones" then
+				if Node.Name == "Drones" then
 					break
 				end
 				Node = Node.Parent
@@ -3062,6 +3081,21 @@ end)
 			local DroneNear = false
 			for _, Unit in Objects.ArchivesEntities do
 				if Unit.Name ~= "Drones" and Unit.Parent then
+					-- Stampede-subtree units are the boss's parts, not normal
+					-- drones — skip them here so Remove Drones and Anti
+					-- Stampede never mix (old confusion bug).
+					local UnderStampede = false
+					local Node = Unit.Parent
+					while Node and Node ~= Services.Workspace do
+						local SqueezedAncestor = type(Node.Name) == "string" and Node.Name:lower():gsub("[%s_%-]", "") or ""
+						if SqueezedAncestor == "dronesstampede" or SqueezedAncestor == "dronestampede"
+							or SqueezedAncestor == "dronesstampederig" or SqueezedAncestor == "dronestampederig" then
+							UnderStampede = true
+							break
+						end
+						Node = Node.Parent
+					end
+					if UnderStampede then continue end
 					local Entry, Key = Functions.MatchArchivesEntity(Unit.Name, Unit)
 					if Entry and Key == "Drone" and Unit.Name ~= "Drones" then
 						local Pos
