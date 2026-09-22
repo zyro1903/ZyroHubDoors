@@ -1971,7 +1971,18 @@ end)
 	Groupboxes.Exploits_Archives = Tabs.Exploits:AddRightGroupbox(L("The Archives"))
 	Groupboxes.Exploits_Archives:AddToggle("ArchivesEntityESP", { Text = L("Archives Entity ESP"), Default = false })
 	Toggles.ArchivesEntityESP:AddColorPicker("ArchivesESPColor", { Text = L("Entity Color"), Default = Color3.fromRGB(255, 170, 0), Transparency = 0.1 })
-	Groupboxes.Exploits_Archives:AddDropdown("ArchivesESPList", { Text = L("Entities"), Values = { "Scribbles", "Alma", "Honcho", "Drones", "DronesStampede", "Teller", "Bash" }, Default = { "Scribbles", "Alma", "Honcho", "Drones", "DronesStampede", "Teller", "Bash" }, Multi = true })
+	Groupboxes.Exploits_Archives:AddDropdown("ArchivesESPList", { Text = L("Entities"), Values = { "Scribbles", "Alma", "Honcho", "Drones", "DronesStampede", "Teller", "Bash", "Water" }, Default = { "Scribbles", "Alma", "Honcho", "Drones", "DronesStampede", "Teller", "Bash", "Water" }, Multi = true })
+	-- Rescan shock-water parts when the filter changes so a freshly selected
+	-- "Water" entry labels puddles that already streamed in, without needing
+	-- an ESP re-toggle.
+	pcall(function()
+		Options.ArchivesESPList:OnChanged(function()
+			if not Toggles.ArchivesEntityESP.Value then return end
+			for _, Object in Services.Workspace:GetDescendants() do
+				if Object:IsA("BasePart") then Functions.HandleShockWater(Object) end
+			end
+		end)
+	end)
 	Groupboxes.Exploits_Archives:AddToggle("ArchivesNotify", { Text = L("Archives Notifications"), Default = true })
 	Groupboxes.Exploits_Archives:AddDivider()
 	Groupboxes.Exploits_Archives:AddToggle("RemoveScribbles", { Text = L("Remove Scribbles"), Default = false, Tooltip = L("Removes the paper-thrower and strips its damage.") })
@@ -1987,7 +1998,7 @@ end)
 		Disabled = not Functions.CheckCompatability({ "mouse1press", "mouse1release" }), DisabledTooltip = Globals.IncompatibleMessage
 	})
 	Groupboxes.Exploits_Archives:AddToggle("HonchoAssist", { Text = L("Honcho Assist"), Default = false, Tooltip = L("Auto-sorts boxes and warns you when Honcho gets close.") })
-	Groupboxes.Exploits_Archives:AddToggle("SortBoxESP", { Text = L("Sort Box ESP"), Default = false, Tooltip = L("Highlights the box you need to sort next (Honcho).") })
+	Groupboxes.Exploits_Archives:AddToggle("SortBoxESP", { Text = L("Sort Box ESP"), Default = false, Tooltip = L("Highlights every sort box in Honcho's room.") })
 	Groupboxes.Exploits_Archives:AddToggle("AutoGiveTicket", { Text = L("Auto Give Ticket"), Default = false, Tooltip = L("Automatically gives your ticket to the Teller when your number matches.") })
 	Groupboxes.Exploits_Archives:AddToggle("RemoveCurrents", { Text = L("Remove Currents"), Default = false, Tooltip = L("Electric puddles can no longer damage you.") })
 	-- Ported from the old hub: remove the two Archives annoyances at the source.
@@ -2328,7 +2339,7 @@ end)
 		Tooltip = L("Copies every Archives-related instance name to your clipboard."),
 		Func = function()
 			task.spawn(function()
-				local Keywords = { "drone", "honcho", "scrib", "alma", "mail", "depot", "sort", "current", "archive", "ticket", "eye", "bash", "forget", "anomaly", "pizza" }
+				local Keywords = { "drone", "honcho", "scrib", "alma", "mail", "depot", "sort", "current", "archive", "ticket", "eye", "bash", "forget", "anomaly", "pizza", "puddle", "water", "wet", "shock", "electric", "electro", "zap", "volt", "goo", "slime", "liquid", "acid", "spill", "box", "crate", "bin", "package", "parcel", "bag" }
 				local Seen, Lines = {}, {}
 				local Roots = { Workspace = Services.Workspace, PlayerGui = LocalPlayer.PlayerGui, ReplicatedStorage = Services.ReplicatedStorage }
 				for RootName, Root in Roots do
@@ -2514,7 +2525,7 @@ end)
 		for _, Negative in { "pump", "wheel", "bottle", "vial", "jug", "soda", "drink" } do
 			if Squeezed:find(Negative, 1, true) then return false end
 		end
-		for _, Keyword in { "current", "puddle", "electric", "electro", "shock", "zap", "volt", "tesla", "water", "liquid", "acid", "toxic", "goo", "goop", "slime", "hazard", "spark", "wet", "flood" } do
+		for _, Keyword in { "current", "puddle", "electric", "electro", "shock", "zap", "volt", "tesla", "water", "liquid", "acid", "toxic", "goo", "goop", "slime", "hazard", "spark", "wet", "flood", "suds", "spill", "leak", "aqua", "hydro", "damp", "seep", "sewage", "sewer", "tide", "wave", "surf", "brine", "murk", "swamp", "overflow" } do
 			if Squeezed:find(Keyword, 1, true) then return true end
 		end
 		return false
@@ -2524,6 +2535,30 @@ end)
 		Part.CanTouch = false
 		local Touch = Part:FindFirstChildOfClass("TouchTransmitter")
 		if Touch then Touch:Destroy() end
+	end
+
+	-- Central shock-water handler: protection + tracking + ESP. Used by the
+	-- room watcher, the workspace watcher and every rescan so the water is
+	-- covered no matter where or when it streams in. Tracked parts also power
+	-- the "standing in water" damage rollback below.
+	Functions.HandleShockWater = function(Object)
+		if not Object:IsA("BasePart") then return end
+		if not Functions.IsShockWaterName(Object.Name) then return end
+		Globals.ShockWaterParts = Globals.ShockWaterParts or {}
+		if Toggles.RemoveCurrents.Value then
+			Functions.StripShockWater(Object)
+		end
+		if not Globals.ShockWaterParts[Object] then
+			Globals.ShockWaterParts[Object] = true
+			Object.Destroying:Once(function()
+				Globals.ShockWaterParts[Object] = nil
+			end)
+		end
+		if Toggles.ArchivesEntityESP.Value
+			and Functions.IsSelected(Options.ArchivesESPList.Value, "Water")
+			and not (ZyroHub.ESPLibrary.ColorTable or {})[Object] then
+			Functions.AddESP({ Object = Object, Text = L("Electrified Water"), Color = Options.ArchivesESPColor.Value }, false)
+		end
 	end
 
 	Functions.HandleArchivesEntity = function(Object)
@@ -2706,34 +2741,52 @@ end)
 				task.spawn(function()
 					local MinFireGap = 0.8
 					local LastFired = 0
-					local LastEspTarget = nil
+					local EspTracked = {}
 					while Object.Parent and Object:IsDescendantOf(Services.Workspace) do
 						local HonchoRoot = Object.PrimaryPart or Object:FindFirstChildWhichIsA("BasePart", true)
-						local HonchoClose = HonchoRoot and LocalPlayer:DistanceFromCharacter(HonchoRoot.Position) < 30
+						local HonchoClose = HonchoRoot and LocalPlayer:DistanceFromCharacter(HonchoRoot.Position) < 60
 
-						-- Cast a wide net once, then pick only the nearest sort box.
+						-- Cast a wide net once. Box names are NOT reliable ("sort",
+						-- "depot", "mail item", "bin", ... vary per update), so while
+						-- Honcho is nearby every close-range interactive prompt is
+						-- treated as part of the box minigame; only obvious non-box
+						-- holders are excluded.
 						local BestPrompt, BestRoot, BestDist = nil, nil, math.huge
+						local BoxRoots = {}
 						for _, Prompt in Objects.Prompts do
 							if Prompt:IsA("ProximityPrompt") and Prompt.Enabled and Prompt.Parent then
 								local HolderName = Prompt.Parent.Name:lower()
-								-- Ignore generic colliders that simply contain "box"
-								-- (Toolbox, ChestBox, DialogBox, MessageBox, ...).
+								-- Ignore generic colliders and furniture that merely
+								-- contain "box" (Toolbox, ChestBox, DialogBox, ...) and
+								-- hiding spots whose prompts must never be auto-fired.
 								local Excluded = HolderName:find("toolbox", 1, true) or HolderName:find("chestbox", 1, true)
 									or HolderName:find("dialogbox", 1, true) or HolderName:find("messagebox", 1, true)
-									or HolderName:find("shredder", 1, true)
+									or HolderName:find("shredder", 1, true) or HolderName:find("locker", 1, true)
+									or HolderName:find("closet", 1, true)
 								if not Excluded then
-									local IsSortBox = HolderName:find("sort", 1, true) or HolderName:find("depot", 1, true)
-										or HolderName:find("mailitem", 1, true) or HolderName:find("crate", 1, true)
-										or (HonchoClose and HolderName:find("box", 1, true))
-									local IsOverride = HonchoClose and (HolderName:find("override", 1, true) or HolderName:find("shut", 1, true)
-										or HolderName:find("emergency", 1, true) or HolderName:find("door", 1, true))
-									if IsSortBox or IsOverride then
-										local Root = Prompt.Parent:IsA("BasePart") and Prompt.Parent or Prompt.Parent:FindFirstChildWhichIsA("BasePart", true)
-										if Root then
-											local Distance = LocalPlayer:DistanceFromCharacter(Root.Position)
-											local MaxDist = IsSortBox and 15 or 12
-											if Distance < MaxDist and Distance < BestDist then
-												BestDist, BestPrompt, BestRoot = Distance, Prompt, Root
+									local Root = Prompt.Parent:IsA("BasePart") and Prompt.Parent or Prompt.Parent:FindFirstChildWhichIsA("BasePart", true)
+									if Root then
+										local Distance = LocalPlayer:DistanceFromCharacter(Root.Position)
+										if Distance < 40 then
+											local IsSortBox = HolderName:find("sort", 1, true) or HolderName:find("depot", 1, true)
+												or HolderName:find("mailitem", 1, true) or HolderName:find("crate", 1, true)
+												or (HonchoClose and HolderName:find("box", 1, true))
+											local IsOverride = HonchoClose and (HolderName:find("override", 1, true) or HolderName:find("shut", 1, true)
+												or HolderName:find("emergency", 1, true) or HolderName:find("door", 1, true))
+											-- Fallback: a close-range prompt inside the arena while
+											-- Honcho is near IS a box, whatever it is called. The
+											-- original MaxActivationDistance (stored before the
+											-- reach slider inflates it) keeps far room prompts out.
+											local PromptRange = tonumber(Prompt:GetAttribute("MaxActivationDistance_Old")) or Prompt.MaxActivationDistance
+											local IsNearBox = HonchoClose and PromptRange <= 10
+											if IsSortBox or IsNearBox then
+												BoxRoots[Root] = true
+											end
+											if IsSortBox or IsOverride or IsNearBox then
+												local MaxDist = (IsSortBox or IsNearBox) and 18 or 12
+												if Distance < MaxDist and Distance < BestDist then
+													BestDist, BestPrompt, BestRoot = Distance, Prompt, Root
+												end
 											end
 										end
 									end
@@ -2741,13 +2794,22 @@ end)
 							end
 						end
 
-						-- ESP on the correct (nearest) box only.
-						if Toggles.SortBoxESP.Value and BestRoot and BestRoot ~= LastEspTarget then
-							Functions.AddESP({ Object = BestRoot, Text = L("Sort Box"), Color = Color3.fromRGB(0, 255, 150) }, false)
-							if LastEspTarget and LastEspTarget ~= BestRoot then
-								Functions.RemoveESP(LastEspTarget)
+						-- ESP on EVERY visible box. The old code labeled only the
+						-- single nearest box inside 15 studs, which showed nothing
+						-- at all whenever the boxes were slightly further away.
+						if Toggles.SortBoxESP.Value then
+							for Root in pairs(EspTracked) do
+								if not BoxRoots[Root] or not Root.Parent then
+									Functions.RemoveESP(Root)
+									EspTracked[Root] = nil
+								end
 							end
-							LastEspTarget = BestRoot
+							for Root in pairs(BoxRoots) do
+								if not EspTracked[Root] then
+									EspTracked[Root] = true
+									Functions.AddESP({ Object = Root, Text = L("Sort Box"), Color = Color3.fromRGB(0, 255, 150) }, false)
+								end
+							end
 						end
 
 						-- Fire at most ONE prompt (the nearest), with a cooldown.
@@ -2757,7 +2819,9 @@ end)
 						end
 						task.wait(0.4)
 					end
-					if LastEspTarget then Functions.RemoveESP(LastEspTarget) end
+					for Root in pairs(EspTracked) do
+						Functions.RemoveESP(Root)
+					end
 				end)
 			end
 			if Toggles.ArchivesNotify.Value then
@@ -2846,9 +2910,17 @@ end)
 			Functions.HandleArchivesEntity(Object)
 		end
 		Functions.HandleForgetMeNot(Object)
-		if Toggles.RemoveCurrents.Value and Object:IsA("BasePart") and Functions.IsShockWaterName(Object.Name) then
-			Functions.StripShockWater(Object)
+		if Object:IsA("BasePart") then
+			Functions.HandleShockWater(Object)
 		end
+	end)
+
+	-- Workspace-wide water watcher: the room watcher above only sees
+	-- CurrentRooms descendants, but boss arenas can stream their hazards in
+	-- through other parents where the old check never fired.
+	Connections.ArchivesWaterWatcher = Services.Workspace.DescendantAdded:Connect(function(Object)
+		if not Functions.IsArchives() then return end
+		Functions.HandleShockWater(Object)
 	end)
 
 	Connections.ArchivesGuiWatcher = LocalPlayer.PlayerGui.DescendantAdded:Connect(function(Object)
@@ -2921,8 +2993,8 @@ end)
 		task.spawn(function()
 			if not Functions.IsArchives() then return end
 			for _, Object in Services.Workspace:GetDescendants() do
-				if Object:IsA("BasePart") and Functions.IsShockWaterName(Object.Name) then
-					Functions.StripShockWater(Object)
+				if Object:IsA("BasePart") then
+					Functions.HandleShockWater(Object)
 				end
 			end
 		end)
@@ -3070,6 +3142,13 @@ end)
 				end
 			end
 		end
+		-- Water: (re)label shock-water parts that streamed in earlier so a
+		-- freshly selected "Water" filter shows existing puddles too.
+		for _, Object in Services.Workspace:GetDescendants() do
+			if Object:IsA("BasePart") then
+				Functions.HandleShockWater(Object)
+			end
+		end
 	end)
 
 	-- Alma eye minigame: health freeze + auto-click assist
@@ -3129,13 +3208,32 @@ end)
 		-- Electric water immunity: while "Remove Currents" is on, roll back
 		-- small health drops (shock ticks) no matter which mechanism the floor
 		-- uses to apply them — Touched damage, Region3 checks or server calls.
+		-- Standing on/near a tracked water part blocks ANY drop, because some
+		-- puddles hit harder than the old 30-damage cap allowed.
 		if Toggles.RemoveCurrents.Value and Humanoid and Humanoid.Health > 0 then
 			local Now = Humanoid.Health
 			local Tracked = Globals.ArchivesWaterHealth
+			local NearWater = false
+			local Root = Humanoid.Parent and Humanoid.Parent:FindFirstChild("HumanoidRootPart")
+			if Root then
+				for Part in pairs(Globals.ShockWaterParts or {}) do
+					if Part.Parent then
+						local Local = Part.CFrame:PointToObjectSpace(Root.Position)
+						local Half = Part.Size / 2
+						if math.abs(Local.X) <= Half.X + 6 and math.abs(Local.Y) <= Half.Y + 10 and math.abs(Local.Z) <= Half.Z + 6 then
+							NearWater = true
+							break
+						end
+					else
+						Globals.ShockWaterParts[Part] = nil
+					end
+				end
+			end
 			if Tracked == nil then
 				Globals.ArchivesWaterHealth = Now
 			elseif Now < Tracked then
-				if Tracked - Now <= 30 then
+				local Drop = Tracked - Now
+				if Drop <= 30 or (NearWater and Drop <= 100) then
 					Humanoid.Health = Tracked
 				else
 					Globals.ArchivesWaterHealth = Now
