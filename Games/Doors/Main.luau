@@ -2396,6 +2396,15 @@ end)
 	-- every drone unit carries at most one label (no duplicate name stacking).
 	local DroneEspCounter = 0
 	local DroneEspLabeled = setmetatable({}, { __mode = "k" })
+	-- Stampede detection by BEHAVIOR, not by guessed names: a rolling window
+	-- of drone-unit arrival times; a burst = STAMPEDE_BURST_COUNT or more
+	-- units inside STAMPEDE_BURST_WINDOW seconds. Burst members are labeled
+	-- "Drones Stampede" (Zyro #26: the game itself names them that way; the
+	-- old exact-name matching had the two labels swapped).
+	local DroneEspStamps = {}
+	local DroneEspStampede = setmetatable({}, { __mode = "k" })
+	local STAMPEDE_BURST_COUNT = 6
+	local STAMPEDE_BURST_WINDOW = 10
 
 	Functions.IsArchives = function()
 		local ok, Value = pcall(function() return GameData.Floor.Value end)
@@ -2441,16 +2450,12 @@ end)
 	-- The Teller machine is the same story: exact "Teller"/"TellerRig" or a
 	-- rig with a Humanoid counts; booth/dispenser/counter furniture does not.
 	Functions.MatchArchivesEntity = function(Name, Object)
-		-- Stampede boss (normalized name: "dronesstampede" etc. — old script's
-		-- exact name, carried over intentionally). Checked BEFORE the loose
-		-- table because "dronesstampede" contains "drone" and would otherwise
-		-- fall into the normal-drone handler (old mixing bug).
-		if type(Name) == "string" then
-			local SqueezedStampede = Name:lower():gsub("[%s_%-]", "")
-			if SqueezedStampede == "dronesstampede" or SqueezedStampede == "dronestampede" then
-				return Entities.DronesStampede, "DronesStampede"
-			end
-		end
+		-- No name-based stampede check here on purpose. In-game evidence
+		-- (Zyro #26: normal drones got the stampede label and vice versa)
+		-- shows real instance names do not follow the guessed pattern, and
+		-- there is no separate stampede boss model: a stampede is a BURST of
+		-- drone units, detected by arrival rate in HandleDroneUnit below
+		-- (DroneEspStamps / DroneEspStampede).
 		local Entry, Key = Functions.MatchArchivesLoose(Name)
 		if Entry and Key == "Teller" then
 			local SqueezedTeller = Name:lower():gsub("[%s_%-]", "")
@@ -2523,24 +2528,9 @@ end)
 
 	Functions.HandleArchivesEntity = function(Object)
 		local Entry, Key = Functions.MatchArchivesEntity(Object.Name, Object)
-		-- A stampede-boss sub-part can carry a drone-ish name; route it to the
-		-- stampede handler instead of the normal-drone counter by checking the
-		-- ancestor chain BEFORE collapsing anything.
-		if Key == "Drone" then
-			local Node = Object.Parent
-			while Node and Node ~= Services.Workspace do
-				local SqueezedAncestor = type(Node.Name) == "string" and Node.Name:lower():gsub("[%s_%-]", "") or ""
-				if SqueezedAncestor == "dronesstampede" or SqueezedAncestor == "dronestampede"
-					or SqueezedAncestor == "dronesstampederig" or SqueezedAncestor == "dronestampederig" then
-					Entry, Key = Entities.DronesStampede, "DronesStampede"
-					break
-				end
-				if Node.Name == "Drones" then
-					break
-				end
-				Node = Node.Parent
-			end
-		end
+		-- No ancestor-based stampede routing either: the same in-game evidence
+		-- (Zyro #26) shows the guessed ancestor names never occur above real
+		-- drone units, so the only effect was misrouting one side to the other.
 		-- Drones stream in piece by piece and their sub-parts carry drone-ish
 		-- names too, so DescendantAdded fires for every piece of one unit.
 		-- Collapse each piece to the OUTERMOST drone instance, otherwise the
@@ -2578,9 +2568,8 @@ end)
 		-- Room decorations live under "Assets" folders at any depth; they are
 		-- props, not entities (e.g. "ArchivesDesk-Honcho", "HonchoPoster").
 		-- The Teller machine is a functional interactable, not a decoration,
-		-- so it stays eligible even inside an Assets folder. DronesStampede
-		-- is a boss-model entity, also never a prop.
-		if Object:FindFirstAncestor("Assets") and Key ~= "Teller" and Key ~= "DronesStampede" then return end
+		-- so it stays eligible even inside an Assets folder.
+		if Object:FindFirstAncestor("Assets") and Key ~= "Teller" then return end
 		ArchivesHandled[Object] = true
 		table.insert(Objects.ArchivesEntities, Object)
 		local Now = os.clock()
@@ -2591,17 +2580,7 @@ end)
 			Functions.Notify({ Title = Entry.NotifyMessage.Title, Body = Entry.NotifyMessage.Body, Image = EntityIcons[Key] })
 		end
 
-		if Key == "DronesStampede" then
-			-- Stampede boss: NEVER runs the drone-unit burst counter below.
-			-- It is handled like the other named bosses (notify + optional
-			-- ESP entry); the rush-warning stays purely drone-count based.
-			local AntiStampede = Toggles.AntiStampede and Toggles.AntiStampede.Value
-			if AntiStampede then
-				Functions.StripArchivesDamage(Object)
-				pcall(function() Object:Destroy() end)
-			end
-			return
-		end
+		if Key == "DronesStampede" then return end
 
 		if Key == "Drone" then
 			-- Drones: exactly ONE numbered label per unit, so 5 drones can
@@ -2614,9 +2593,16 @@ end)
 				for _, Ancestor in Unit:GetAncestors() do
 					if DroneEspLabeled[Ancestor] then return end
 				end
+				local IsStampede = DroneEspStampede[Unit] == true
 				task.spawn(function()
-					if Toggles.RemoveDrones.Value then Functions.StripArchivesDamage(Unit) end
-					if not (Toggles.ArchivesEntityESP.Value and Functions.IsSelected(Options.ArchivesESPList.Value, "Drones")) then return end
+					if Toggles.RemoveDrones.Value or (IsStampede and Toggles.AntiStampede and Toggles.AntiStampede.Value) then
+						Functions.StripArchivesDamage(Unit)
+					end
+					local WantESP = Toggles.ArchivesEntityESP.Value
+						and (IsStampede
+							and Functions.IsSelected(Options.ArchivesESPList.Value, "DronesStampede")
+							or (not IsStampede and Functions.IsSelected(Options.ArchivesESPList.Value, "Drones")))
+					if not WantESP then return end
 					if DroneEspLabeled[Unit] then return end
 					ZyroHub.ESPLibrary:RemoveESP(Unit)
 					for _, Descendant in Unit:GetDescendants() do
@@ -2628,7 +2614,8 @@ end)
 					DroneEspLabeled[Unit] = true
 					DroneEspCounter += 1
 					if Unit.Parent then
-						Functions.AddESP({ Object = Unit, Text = Entry.Alias .. " " .. DroneEspCounter, Color = Options.ArchivesESPColor.Value }, false)
+						local LabelText = IsStampede and "Drones Stampede" or (Entry.Alias .. " " .. DroneEspCounter)
+						Functions.AddESP({ Object = Unit, Text = LabelText, Color = Options.ArchivesESPColor.Value }, false)
 					end
 				end)
 			end
@@ -2636,36 +2623,41 @@ end)
 				if not Unit or ArchivesHandled[Unit] then return end
 				ArchivesHandled[Unit] = true
 				table.insert(Objects.ArchivesEntities, Unit)
-				-- Rush warning: counts NORMAL drone units only (never the
-				-- stampede boss - it returns earlier). A room burst is
-				-- 8+ units inside 10 seconds AND within 60s of a rush-hour
-				-- strike, so ordinary 2-4 unit room groups never warn.
+				-- Stampede detection: a burst of STAMPEDE_BURST_COUNT+ drone
+				-- units inside STAMPEDE_BURST_WINDOW seconds (with a 60s
+				-- notify cooldown). Burst members get the stampede label +
+				-- Anti Stampede handling; ordinary small groups stay normal
+				-- drones. No guessed instance names involved.
 				local Now = os.clock()
-				local StruckRecently = Now - (Globals.ArchivesPhaseAt or -math.huge) < 60
-				if StruckRecently then
-					table.insert(ArchivesSpawnStamps, Now)
-					local Recent = 0
-					for Index = #ArchivesSpawnStamps, 1, -1 do
-						if Now - ArchivesSpawnStamps[Index] > 10 then
-							table.remove(ArchivesSpawnStamps, Index)
-						else
-							Recent += 1
-						end
-					end
-					if Recent >= 8 and Now - (ArchivesNotifyCooldown.Stampede or 0) > 60 then
-						ArchivesNotifyCooldown.Stampede = Now
-						if Toggles.ArchivesNotify.Value then
-							local Body = L("Get out of their path!")
-							if Globals.ArchivesStrikeHour == 5 or Globals.ArchivesStrikeHour == 17 then
-								Body = L("Stampede from the FRONT! Stand away from the doors!")
-							elseif Globals.ArchivesStrikeHour == 9 or Globals.ArchivesStrikeHour == 21 then
-								Body = L("Stampede from the BACK! Stand away from the doors!")
-							end
-							Functions.Notify({ Title = L("Drone stampede incoming!"), Body = Body })
-						end
+				table.insert(DroneEspStamps, Now)
+				local Recent = 0
+				for Index = #DroneEspStamps, 1, -1 do
+					if Now - DroneEspStamps[Index] > STAMPEDE_BURST_WINDOW then
+						table.remove(DroneEspStamps, Index)
+					else
+						Recent += 1
 					end
 				end
-				LabelDroneUnit(Unit)
+				local BurstDetected = false
+				if Recent >= STAMPEDE_BURST_COUNT and Now - (ArchivesNotifyCooldown.Stampede or 0) > 60 then
+					ArchivesNotifyCooldown.Stampede = Now
+					BurstDetected = true
+				end
+				if BurstDetected then
+					DroneEspStampede[Unit] = true
+					LabelDroneUnit(Unit)
+					if Toggles.ArchivesNotify.Value then
+						local Body = L("Get out of their path!")
+						if Globals.ArchivesStrikeHour == 5 or Globals.ArchivesStrikeHour == 17 then
+							Body = L("Stampede from the FRONT! Stand away from the doors!")
+						elseif Globals.ArchivesStrikeHour == 9 or Globals.ArchivesStrikeHour == 21 then
+							Body = L("Stampede from the BACK! Stand away from the doors!")
+						end
+						Functions.Notify({ Title = L("Drone stampede incoming!"), Body = Body })
+					end
+				else
+					LabelDroneUnit(Unit)
+				end
 			end
 			if IsContainer then
 				-- Persistent container ("Drones" model): label existing + future
@@ -3010,11 +3002,12 @@ end)
 	end)
 	Toggles.AntiStampede:OnChanged(function(Value)
 		if not Value then return end
+		-- A stampede has no boss model: it is a burst of drone units, so the
+		-- retroactive effect strips the damage of every drone that arrived
+		-- during the last stampede burst (see DroneEspStamps above).
 		for _, Object in Objects.ArchivesEntities do
-			local Entry, Key = Functions.MatchArchivesEntity(Object.Name, Object)
-			if Entry and Key == "DronesStampede" and Object.Parent then
+			if Object.Parent and DroneEspStampede[Object] then
 				Functions.StripArchivesDamage(Object)
-				pcall(function() Object:Destroy() end)
 			end
 		end
 	end)
@@ -3051,13 +3044,24 @@ end)
 				if not Entry then continue end
 				-- Drones: the "Drones" container never gets a label and each unit
 				-- gets at most one (deduped), so re-toggling ESP cannot stack a
-				-- second name onto drones that already have one.
+				-- second name onto drones that already have one. Stampede-burst
+				-- units follow the "DronesStampede" filter and keep their
+				-- "Drones Stampede" label.
 				if Key == "Drone" then
-					if Object.Name ~= "Drones" and not DroneEspLabeled[Object]
-						and Functions.IsSelected(Options.ArchivesESPList.Value, "Drones") then
-						DroneEspLabeled[Object] = true
-						DroneEspCounter += 1
-						Functions.AddESP({ Object = Object, Text = Entry.Alias .. " " .. DroneEspCounter, Color = Options.ArchivesESPColor.Value }, false)
+					if Object.Name ~= "Drones" and not DroneEspLabeled[Object] then
+						local IsStampede = DroneEspStampede[Object] == true
+						local WantLabel = IsStampede
+							and Functions.IsSelected(Options.ArchivesESPList.Value, "DronesStampede")
+							or (not IsStampede and Functions.IsSelected(Options.ArchivesESPList.Value, "Drones"))
+						if WantLabel then
+							DroneEspLabeled[Object] = true
+							DroneEspCounter += 1
+							Functions.AddESP({
+								Object = Object,
+								Text = IsStampede and "Drones Stampede" or (Entry.Alias .. " " .. DroneEspCounter),
+								Color = Options.ArchivesESPColor.Value
+							}, false)
+						end
 					end
 					continue
 				end
