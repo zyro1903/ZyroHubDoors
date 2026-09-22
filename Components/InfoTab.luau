@@ -1,4 +1,4 @@
-﻿return function(Window)
+return function(Window)
     local L = function(Key)
         return ZyroHub.Localization.Get(Key, ZyroHub.Language)
     end

@@ -1,4 +1,4 @@
-﻿local Translations = {
+local Translations = {
     English = {
         Overview = "Overview",
         Credit = "Credit",
