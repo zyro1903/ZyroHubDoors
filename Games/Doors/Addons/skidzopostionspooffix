@@ -1,5 +1,5 @@
 return function(Window)
-    local Library = Abysall.Interface.Library
+    local Library = ZyroHub.Interface.Library
     local Toggles = Library.Toggles
 
     local Players = game:GetService("Players")
@@ -150,10 +150,10 @@ return function(Window)
         end
     end)
 
-    if Abysall.Addon
-        and type(Abysall.Addon.OnUnload) == "function"
+    if ZyroHub.Addon
+        and type(ZyroHub.Addon.OnUnload) == "function"
     then
-        Abysall.Addon.OnUnload(function()
+        ZyroHub.Addon.OnUnload(function()
             if Connection then
                 Connection:Disconnect()
                 Connection = nil

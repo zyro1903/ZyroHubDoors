@@ -1,5 +1,5 @@
 return function(Window)
-    local Library = Abysall.Interface.Library
+    local Library = ZyroHub.Interface.Library
     local Toggles = Library.Toggles
     local Options = Library.Options
 

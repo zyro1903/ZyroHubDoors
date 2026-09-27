@@ -1,5 +1,14 @@
 return function(Window)
     local LatestChangelog = {
+        "27/9/2026",
+
+		-- Green = Added
+		"<font color='rgb(0, 255, 0)'>+ Rebranded the hub to ZyroHub</font>",
+		"<font color='rgb(0, 255, 0)'>+ Added the ZyroHub green theme and made green the default accent</font>",
+
+		"<font color='rgb(255, 255, 0)'>~ Updated the credits</font>",
+		"<font color='rgb(255, 255, 0)'>~ Pointed every remote URL at the ZyroHub repository</font>",
+
         "5/9/2026",
 
 		-- Green = Added
@@ -19,8 +28,8 @@ return function(Window)
         "<font color='rgb(255, 0, 0)'>- Removed FireBacon</font>",
     }
     local function CloneReference(Object)
-        if Abysall and Abysall.Environment.cloneref then
-            return Abysall.Environment.cloneref(Object)
+        if ZyroHub and ZyroHub.Environment.cloneref then
+            return ZyroHub.Environment.cloneref(Object)
         else
             return Object
         end
@@ -32,9 +41,9 @@ return function(Window)
         end
     })
 
-    local Library = Abysall.Interface.Library
-    local SaveManager = Abysall.Interface.SaveManager
-    local ThemeManager = Abysall.Interface.ThemeManager
+    local Library = ZyroHub.Interface.Library
+    local SaveManager = ZyroHub.Interface.SaveManager
+    local ThemeManager = ZyroHub.Interface.ThemeManager
 
     local Toggles = Library.Toggles
     local Options = Library.Options
@@ -54,14 +63,12 @@ return function(Window)
     })
 
     User:AddLabel("ID: " .. LocalPlayer.Name, true)
-    User:AddLabel("Total Executions: " .. (Abysall.TotalExecutions and Abysall.TotalExecutions or "N/A"), true)
+    User:AddLabel("Total Executions: " .. (ZyroHub.TotalExecutions and ZyroHub.TotalExecutions or "N/A"), true)
 
 	local CreditsList = {
-		"<font color='rgb(0, 255, 255)'>CookieMonster — Owner of the Continued Script</font>",
-		"<font color='rgb(255, 165, 0)'>FireBacon — Owner of the Discontinued Script</font>",
-		"<font color='rgb(197, 63, 132)'>Rhyan57 — Provided the Infinite Crucifix</font>",
-		"<font color='rgb(241, 106, 212)'>Abbas - Basicly a developer</font>",
-		"<font color='rgb(50, 205, 50)'>" .. LocalPlayer.Name .. " — For Using This Script</font>"
+		"<font color='rgb(34, 197, 94)'>Zyro — Owner and Developer</font>",
+		"<font color='rgb(34, 197, 94)'>Rag_zar123 — Developer</font>",
+		"<font color='rgb(134, 239, 172)'>" .. LocalPlayer.Name .. " — For Using This Script</font>"
 	}
 
 	local Credits = InfoTab:AddRightGroupbox("Credits")
@@ -74,14 +81,14 @@ return function(Window)
         Changelog:AddLabel(Change, true)
     end
 
-    local Name, Version = Abysall.Environment.identifyexecutor()
+    local Name, Version = ZyroHub.Environment.identifyexecutor()
     local Executor = InfoTab:AddRightGroupbox("Executor Info")
     Executor:AddLabel("Name: " .. Name, true)
 	Executor:AddLabel("Version: " .. (Version and Version or "N/A"), true)
     Executor:AddDivider()
     Executor:AddLabel("Test Result: ", true)
 
-    for Index, Result in pairs(Abysall.Environment.Results) do
+    for Index, Result in pairs(ZyroHub.Environment.Results) do
 		-- fix for veloshitty 💔
 		Result = Result:gsub("<", "(")
 		Result = Result:gsub(">", ")")

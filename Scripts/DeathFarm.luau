@@ -2,7 +2,7 @@ while not game:IsLoaded() do
 	task.wait(1)
 end
 
-print("Abysall Hub death farm for DOORS, created by FireBacon (bocaj111004)")
+print("ZyroHub death farm for DOORS, by Zyro and Rag_zar123")
 print("dsc.gg/abysallhub")
 
 local Services = setmetatable({}, {
@@ -13,7 +13,7 @@ local Services = setmetatable({}, {
 
 local QueueTeleport = queue_on_teleport or queueonteleport
 local TeleportCode = [==[
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/bocaj111004/Abysall/refs/heads/main/Scripts/DeathFarm.luau"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/zyro1903/ZyroHubDoors/refs/heads/main/Scripts/DeathFarm.luau"))()
 ]==]
 
 local LocalPlayer = Services.Players.LocalPlayer
@@ -23,9 +23,9 @@ local GameData = Services.ReplicatedStorage:FindFirstChild("GameData")
 
 local function SendCaption(Text)
 	if firesignal then
-		firesignal(RemotesFolder.Caption.OnClientEvent, "[Abysall Hub] " .. Text)
+		firesignal(RemotesFolder.Caption.OnClientEvent, "[ZyroHub] " .. Text)
 	else
-		RemotesFolder.CaptionClient:Fire("[Abysall Hub] " .. Text)
+		RemotesFolder.CaptionClient:Fire("[ZyroHub] " .. Text)
 	end
 end
 
@@ -47,14 +47,14 @@ if GameData and GameData.Floor.Value ~= "Hotel" then
 		local RemotesFolder = game:GetService("ReplicatedStorage").RemotesFolder
 		local function SendCaption(Text)
 			if firesignal then
-				firesignal(RemotesFolder.Caption.OnClientEvent, "[Abysall Hub] " .. Text)
+				firesignal(RemotesFolder.Caption.OnClientEvent, "[ZyroHub] " .. Text)
 			else
-				RemotesFolder.CaptionClient:Fire("[Abysall Hub] " .. Text)
+				RemotesFolder.CaptionClient:Fire("[ZyroHub] " .. Text)
 			end
 		end
 
 		local QueueTeleport = queue_on_teleport or queueonteleport
-		QueueTeleport([=[loadstring(game:HttpGet("https://raw.githubusercontent.com/bocaj111004/Abysall/refs/heads/main/Scripts/DeathFarm.luau"))()]=])
+		QueueTeleport([=[loadstring(game:HttpGet("https://raw.githubusercontent.com/zyro1903/ZyroHubDoors/refs/heads/main/Scripts/DeathFarm.luau"))()]=])
 
 		SendCaption("Joining a run...")
 		RemotesFolder.CreateElevator:FireServer({
@@ -75,14 +75,14 @@ if game.PlaceId ~= 6839171747 then
 		local RemotesFolder = game:GetService("ReplicatedStorage").RemotesFolder
 		local function SendCaption(Text)
 			if firesignal then
-				firesignal(RemotesFolder.Caption.OnClientEvent, "[Abysall Hub] " .. Text)
+				firesignal(RemotesFolder.Caption.OnClientEvent, "[ZyroHub] " .. Text)
 			else
-				RemotesFolder.CaptionClient:Fire("[Abysall Hub] " .. Text)
+				RemotesFolder.CaptionClient:Fire("[ZyroHub] " .. Text)
 			end
 		end
 
 		local QueueTeleport = queue_on_teleport or queueonteleport
-		QueueTeleport([=[loadstring(game:HttpGet("https://raw.githubusercontent.com/bocaj111004/Abysall/refs/heads/main/Scripts/DeathFarm.luau"))()]=])
+		QueueTeleport([=[loadstring(game:HttpGet("https://raw.githubusercontent.com/zyro1903/ZyroHubDoors/refs/heads/main/Scripts/DeathFarm.luau"))()]=])
 
 		SendCaption("Joining a run...")
 		RemotesFolder.CreateElevator:FireServer({

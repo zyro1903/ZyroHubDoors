@@ -1,19 +1,19 @@
-local Library = (Abysall.UILibrary == "Linoria" and "LinoriaLib" or "Obsidian")
+local Library = (ZyroHub.UILibrary == "Linoria" and "LinoriaLib" or "Obsidian")
 -- local BaseUrl = "https://raw.githubusercontent.com/mstudio45/" .. Library .. "/refs/heads/main/" -- broken since upio github got banned
 local BaseUrl = "https://raw.githubusercontent.com/deividcomsono/Obsidian/refs/heads/main/"
-local AbysallUrl = "https://raw.githubusercontent.com/therealcookiemonsterof1966/AbysallContinued/main/"
+local ZyroHubUrl = "https://raw.githubusercontent.com/zyro1903/ZyroHubDoors/refs/heads/main/"
 
 local Interface = {
   Library = loadstring(game:HttpGet(BaseUrl .. "Library.lua"))(),
   SaveManager = loadstring(game:HttpGet(BaseUrl .. "addons/SaveManager.lua"))(),
   ThemeManager = loadstring(game:HttpGet(BaseUrl .. "addons/ThemeManager.lua"))(),
 
-  ApplyInfoTab = loadstring(game:HttpGet(AbysallUrl .. "Components/InfoTab.luau"))(),
-  ApplySettingsTab = loadstring(game:HttpGet(AbysallUrl .. "Components/SettingsTab.luau"))()
+  ApplyInfoTab = loadstring(game:HttpGet(ZyroHubUrl .. "Components/InfoTab.luau"))(),
+  ApplySettingsTab = loadstring(game:HttpGet(ZyroHubUrl .. "Components/SettingsTab.luau"))()
 }
 
 Interface.ThemeManager.BuiltInThemes = {
-		["Default"]        = { 1,  { FontColor = "ffffff", MainColor = "1c1c1c", AccentColor = "0055ff", BackgroundColor = "141414", OutlineColor = "323232" } },
+		["Default"]        = { 1,  { FontColor = "ffffff", MainColor = "1c1c1c", AccentColor = "22c55e", BackgroundColor = "141414", OutlineColor = "2f4638" } },
 		["BBot"]           = { 2,  { FontColor = "ffffff", MainColor = "1e1e1e", AccentColor = "7e48a3", BackgroundColor = "232323", OutlineColor = "141414" } },
 		["Fatality"]       = { 3,  { FontColor = "ffffff", MainColor = "1e1842", AccentColor = "c50754", BackgroundColor = "191335", OutlineColor = "3c355d" } },
 		["Jester"]         = { 4,  { FontColor = "ffffff", MainColor = "242424", AccentColor = "db4467", BackgroundColor = "1c1c1c", OutlineColor = "373737" } },
@@ -31,6 +31,7 @@ Interface.ThemeManager.BuiltInThemes = {
 		["Cyberpunk"]      = { 16, { FontColor = "f9f9f9", MainColor = "262335", AccentColor = "00ff9f", BackgroundColor = "1a1a2e", OutlineColor = "413c5e" } },
 		["Oceanic Next"]   = { 17, { FontColor = "d8dee9", MainColor = "1b2b34", AccentColor = "6699cc", BackgroundColor = "16232a", OutlineColor = "343d46" } },
 		["Material"]       = { 18, { FontColor = "eeffff", MainColor = "212121", AccentColor = "82aaff", BackgroundColor = "151515", OutlineColor = "424242" } },
+		["ZyroHub"]        = { 19, { FontColor = "ffffff", MainColor = "16241a", AccentColor = "22c55e", BackgroundColor = "0f1a12", OutlineColor = "2b4a33" } },
 	}
 
 return Interface

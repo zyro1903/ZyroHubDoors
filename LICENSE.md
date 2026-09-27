@@ -1,10 +1,10 @@
-# Abysall Hub Continued — Proprietary License
+# ZyroHub — Proprietary License
 
-**Copyright © 2026 TheRealCookieMonsterOf1966. All Rights Reserved.**
+**Copyright © 2026 Zyro. All Rights Reserved.**
 
 ## 1. Ownership
 
-Abysall Hub Continued, including but not limited to its source code, scripts, modules, libraries, interfaces, documentation, assets, systems, implementations, and original functionality (collectively, the "Software"), is the exclusive intellectual property of **TheRealCookieMonsterOf1966** ("Author"), unless otherwise stated.
+ZyroHub, including but not limited to its source code, scripts, modules, libraries, interfaces, documentation, assets, systems, implementations, and original functionality (collectively, the "Software"), is the exclusive intellectual property of **Zyro** ("Author"), unless otherwise stated.
 
 All rights not expressly granted by this license are reserved by the Author.
 
@@ -80,4 +80,4 @@ All rights not expressly granted under this license are reserved by the Author.
 
 Unauthorized copying, modification, redistribution, commercialization, or creation of derivative works is prohibited.
 
-**Copyright © 2026 TheRealCookieMonsterOf1966. All Rights Reserved.**
+**Copyright © 2026 Zyro. All Rights Reserved.**
