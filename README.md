@@ -31,11 +31,11 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/zyro1903/ZyroHubDoors
 
 ## Theme
 
-Green is the default accent colour and a dedicated `ZyroHub` theme ships with the theme manager:
+Green is the house style: the `Default` theme is fully green and the `ZyroHub` theme is applied automatically on boot (skipped only if you saved a different default theme in Settings → Themes):
 
 | Theme | Main | Accent | Background | Outline |
 | --- | --- | --- | --- | --- |
-| ZyroHub | `#16241a` | `#22c55e` | `#0f1a12` | `#2b4a33` |
+| Default / ZyroHub | `#16241a` | `#22c55e` | `#0f1a12` | `#2b4a33` |
 
 Themes and configs are stored under `ZyroHub/Doors/Game`.
 

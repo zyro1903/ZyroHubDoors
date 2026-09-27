@@ -13,7 +13,7 @@ local Interface = {
 }
 
 Interface.ThemeManager.BuiltInThemes = {
-		["Default"]        = { 1,  { FontColor = "ffffff", MainColor = "1c1c1c", AccentColor = "22c55e", BackgroundColor = "141414", OutlineColor = "2f4638" } },
+		["Default"]        = { 1,  { FontColor = "ffffff", MainColor = "16241a", AccentColor = "22c55e", BackgroundColor = "0f1a12", OutlineColor = "2b4a33" } },
 		["BBot"]           = { 2,  { FontColor = "ffffff", MainColor = "1e1e1e", AccentColor = "7e48a3", BackgroundColor = "232323", OutlineColor = "141414" } },
 		["Fatality"]       = { 3,  { FontColor = "ffffff", MainColor = "1e1842", AccentColor = "c50754", BackgroundColor = "191335", OutlineColor = "3c355d" } },
 		["Jester"]         = { 4,  { FontColor = "ffffff", MainColor = "242424", AccentColor = "db4467", BackgroundColor = "1c1c1c", OutlineColor = "373737" } },
@@ -34,4 +34,19 @@ Interface.ThemeManager.BuiltInThemes = {
 		["ZyroHub"]        = { 19, { FontColor = "ffffff", MainColor = "16241a", AccentColor = "22c55e", BackgroundColor = "0f1a12", OutlineColor = "2b4a33" } },
 	}
 
-return Interface
+	-- Open green from the very first frame: preset the library scheme with the
+	-- ZyroHub default palette before any window or element is created. The
+	-- ThemeManager applies the same palette again once the Settings tab is built.
+	if Interface.Library and Interface.Library.Scheme then
+		local SchemeColors = Interface.ThemeManager.BuiltInThemes["Default"][2]
+		for _, SchemeIndex in { "FontColor", "MainColor", "AccentColor", "BackgroundColor", "OutlineColor" } do
+			local Hex = SchemeColors[SchemeIndex]
+			if type(Hex) == "string" then
+				pcall(function()
+					Interface.Library.Scheme[SchemeIndex] = Color3.fromHex(Hex)
+				end)
+			end
+		end
+	end
+
+	return Interface

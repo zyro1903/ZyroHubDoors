@@ -5,9 +5,12 @@ return function(Window)
 		-- Green = Added
 		"<font color='rgb(0, 255, 0)'>+ Rebranded the hub to ZyroHub</font>",
 		"<font color='rgb(0, 255, 0)'>+ Added the ZyroHub green theme and made green the default accent</font>",
+		"<font color='rgb(0, 255, 0)'>+ Made the whole Default theme green (window, background and outline)</font>",
+		"<font color='rgb(0, 255, 0)'>+ Notifications are tinted green now too</font>",
 
 		"<font color='rgb(255, 255, 0)'>~ Updated the credits</font>",
 		"<font color='rgb(255, 255, 0)'>~ Pointed every remote URL at the ZyroHub repository</font>",
+		"<font color='rgb(255, 255, 0)'>~ The green theme is applied automatically on boot</font>",
 
         "5/9/2026",
 

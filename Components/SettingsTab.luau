@@ -123,4 +123,16 @@ return function(Window)
 	SaveManager:BuildConfigSection(SettingsTab)
 	ThemeManager:ApplyToTab(SettingsTab)
 	SaveManager:LoadAutoloadConfig()
+
+	-- ZyroHub house style: boot straight into the green theme, unless the user
+	-- explicitly saved another default theme in Settings -> Themes.
+	if ThemeManager.DefaultThemeName == nil
+		or ThemeManager.DefaultThemeName == "Default"
+		or ThemeManager.DefaultThemeName == "ZyroHub"
+	then
+		pcall(function()
+			ThemeManager:ApplyTheme("ZyroHub")
+			ThemeManager.Library.Options.ThemeManager_ThemeList:SetValue("ZyroHub")
+		end)
+	end
 end

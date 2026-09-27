@@ -43,7 +43,7 @@ function Nofitication:Notify(nofdebug, middledebug, all)
     
     Window.Name = "Window"
     Window.Parent = ambientShadow
-    Window.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Window.BackgroundColor3 = Color3.fromRGB(22, 34, 25)
     Window.BorderSizePixel = 0
     Window.Position = UDim2.new(0, 5, 0, 5)
     Window.Size = UDim2.new(0, 230, 0, 80)
